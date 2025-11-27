@@ -1,35 +1,156 @@
-.header {
+
+.dashboard-header {
+  position: fixed;
+  top: 0;
+  left: 0;                 
+  width: 100%;
+  height: 73px;            
+  background-color: white;
+  border-bottom: 1px solid #e5e7eb;
+  z-index: 1000;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin-bottom: 32px;
+  padding: 0 1.5rem;
 }
 
-.welcome-section h1 {
-  font-size: 28px;
-  color: #1e293b;
-  margin-bottom: 4px;
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
 }
 
-.welcome-section p {
-  color: #64748b;
-  font-size: 16px;
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
+
+.logo-icon {
+  width: 2rem;
+  height: 2rem;
+  background-color: #2563eb;
+  border-radius: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: white;
+}
+
+.brand-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+
+.right-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.icon-button {
+  position: relative;
+  padding: 0.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.icon-button:hover {
+  background-color: #f3f4f6;
+}
+
+.icon-button svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #4b5563;
+}
+
+.notification-dot {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: #ef4444;
+  border-radius: 50%;
+}
+
 
 .user-profile {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
-.profile-avatar {
-  width: 40px;
-  height: 40px;
+.user-avatar {
+  width: 2.25rem;
+  height: 2.25rem;
+  background-color: #dbeafe;
   border-radius: 50%;
-  background: #3b82f6;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: white;
-  font-weight: 600;
+}
+
+.user-initials {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #2563eb;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+}
+
+.user-email {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+
+.mobile-menu-btn {
+  display: none;
+  font-size: 1.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+
+@media (max-width: 768px) {
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .right-section {
+    gap: 0.5rem;
+  }
+
+  .user-info {
+    display: none; 
+  }
+
+  .dashboard-header {
+    padding: 0 1rem;
+  }
 }

@@ -8,7 +8,11 @@ import RecentActivity from '../../components/RecentActivity/RecentActivity';
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const [user] = useState({ name: 'John' });
+  const [user] = useState({
+    name: 'John',
+    email: 'john@example.com'
+  });
+
   const [stats] = useState({
     departments: 4,
     activeElections: 1,
@@ -33,29 +37,40 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <Sidebar />
-      <div className="main-content">
-        <Header user={user} />
-        <StatsGrid stats={stats} />
-        
-        <div className="section">
-          <div className="section-header">
-            <h2>Active Elections</h2>
-            <button className="view-all-btn">View all →</button>
-          </div>
-          
-          {elections.map(election => (
-            <ElectionCard 
-              key={election.id} 
-              election={election} 
-              onCastVote={handleCastVote}
-            />
-          ))}
-        </div>
+    <div className="dashboard-wrapper">
+      <Header user={user} />
 
-        <DepartmentSection />
-        <RecentActivity />
+      <div className="dashboard-container">
+        <Sidebar />
+
+        <div className="main-content">
+          <div className="welcome-section">
+            <h1 className="welcome-title">Welcome back, {user.name}</h1>
+            <p className="welcome-subtitle">
+              Here's what's happening with your voting activities
+            </p>
+          </div>
+
+          <StatsGrid stats={stats} />
+
+          <div className="section">
+            <div className="section-header">
+              <h2>Active Elections</h2>
+              <button className="view-all-btn">View all →</button>
+            </div>
+
+            {elections.map(election => (
+              <ElectionCard
+                key={election.id}
+                election={election}
+                onCastVote={handleCastVote}
+              />
+            ))}
+          </div>
+
+          <DepartmentSection />
+          <RecentActivity />
+        </div>
       </div>
     </div>
   );
