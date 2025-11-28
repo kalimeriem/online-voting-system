@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './Sidebar.css';
+import { Link } from 'react-router-dom';
 
 export default function Sidebar() {
   const [activeItem, setActiveItem] = useState('Dashboard');
@@ -39,20 +40,33 @@ export default function Sidebar() {
     }
   ];
 
-  return (
+return (
     <div className="sidebar">
       <nav className="sidebar-nav">
         {menuItems.map((item) => (
-          <button
-            key={item.name}
-            className={`sidebar-item ${activeItem === item.name ? 'active' : ''}`}
-            onClick={() => setActiveItem(item.name)}
-          >
-            <span className="sidebar-icon">{item.icon}</span>
-            <span className="sidebar-text">{item.name}</span>
-          </button>
+          item.name === 'Elections' ? (
+            <Link
+              key={item.name}
+              to="/elections"
+              className={`sidebar-item ${activeItem === item.name ? 'active' : ''}`}
+              onClick={() => setActiveItem(item.name)}
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              <span className="sidebar-text">{item.name}</span>
+            </Link>
+          ) : (
+            <button
+              key={item.name}
+              className={`sidebar-item ${activeItem === item.name ? 'active' : ''}`}
+              onClick={() => setActiveItem(item.name)}
+            >
+              <span className="sidebar-icon">{item.icon}</span>
+              <span className="sidebar-text">{item.name}</span>
+            </button>
+          )
         ))}
       </nav>
     </div>
   );
+  
 }

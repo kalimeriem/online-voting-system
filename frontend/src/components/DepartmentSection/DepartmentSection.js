@@ -1,13 +1,9 @@
 import React from 'react';
 import './DepartmentSection.css';
+import { getDepartments } from '../../repositories/DepartmentRepository';
 
 const DepartmentSection = () => {
-  const departments = [
-    { name: 'ENSIA School', type: 'Main school department', members: 150 },
-    { name: 'Teachers', type: 'Teaching staff department', members: 25, private: true },
-    { name: 'Students', type: 'Student body', members: 100 },
-    { name: 'Staff', type: 'Administrative staff', members: 25, private: true }
-  ];
+  const departments = getDepartments();
 
   return (
     <div className="section">
@@ -15,7 +11,6 @@ const DepartmentSection = () => {
         <h2>My Departments</h2>
         <button className="view-all-btn">View all →</button>
       </div>
-      
       <div className="departments-grid">
         {departments.map((dept, index) => (
           <div key={index} className="department-card">
@@ -26,7 +21,7 @@ const DepartmentSection = () => {
             <p className="dept-type">{dept.type}</p>
             <div className="dept-members">
               <span className="member-icon">👥</span>
-              <span>{dept.members} members</span>
+              <span>{dept.members.length} members</span>
             </div>
           </div>
         ))}

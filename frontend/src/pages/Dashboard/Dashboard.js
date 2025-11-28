@@ -30,6 +30,14 @@ const Dashboard = () => {
       endDate: '23/10/2024',
       hasVoted: false
     }
+    ,
+    {
+      id: 2,
+      title: 'Student Council Vice President 2024',
+      description: 'Annual election for student council vice president position',
+      status: 'Upcoming',
+      students: 41,
+    }
   ]);
 
   const handleCastVote = (electionId) => {
