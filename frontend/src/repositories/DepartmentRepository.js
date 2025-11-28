@@ -6,6 +6,7 @@ const departments = [
     private: false,
     members: [
       { email: 'manager1@ensia.edu', username: 'manager1', name: 'Alice Manager', role: 'manager' },
+      { email: 'john@example.com', username: 'john', name: 'John Doe', role: 'manager' },
       { email: 'member1@ensia.edu', username: 'member1', name: 'Bob Member', role: 'member' },
       { email: 'member2@ensia.edu', username: 'member2', name: 'Carol Member', role: 'member' }
     ]

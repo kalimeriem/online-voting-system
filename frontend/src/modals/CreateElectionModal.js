@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
+import './CreateElectionModal.css';
+import { getDepartments } from '../repositories/DepartmentRepository';
 
-const CreateElectionModal = ({ open, onClose, onCreate }) => {
+const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
-  const [voterType, setVoterType] = useState('department');
   const [department, setDepartment] = useState('');
   const [customVoters, setCustomVoters] = useState([]);
+  const [voterTab, setVoterTab] = useState('manual');
+  const [voterEmail, setVoterEmail] = useState('');
+
+  const departments = getDepartments().filter(dept =>
+    dept.members.some(m => m.email === userEmail && m.role === 'manager')
+  );
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -16,7 +23,6 @@ const CreateElectionModal = ({ open, onClose, onCreate }) => {
       description,
       startDate,
       endDate,
-      voterType,
       department,
       customVoters,
       status: 'upcoming',
@@ -32,6 +38,13 @@ const CreateElectionModal = ({ open, onClose, onCreate }) => {
     onClose();
   };
 
+  const handleAddVoter = () => {
+    if (voterEmail && !customVoters.includes(voterEmail)) {
+      setCustomVoters([...customVoters, voterEmail]);
+      setVoterEmail('');
+    }
+  };
+
   if (!open) return null;
 
   return (
@@ -43,15 +56,42 @@ const CreateElectionModal = ({ open, onClose, onCreate }) => {
           <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" required />
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required />
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required />
-          <select value={voterType} onChange={e => setVoterType(e.target.value)}>
-            <option value="department">Department Members</option>
-            <option value="custom">Custom Voter List</option>
+          <select value={department} onChange={e => setDepartment(e.target.value)} required>
+            <option value="">Select Department</option>
+            {departments.map(dept => (
+              <option key={dept.id} value={dept.name}>{dept.name}</option>
+            ))}
           </select>
-          {voterType === 'department' && (
-            <input value={department} onChange={e => setDepartment(e.target.value)} placeholder="Department" />
+          <div className="voter-tabs">
+            <button type="button" className={voterTab === 'manual' ? 'active' : ''} onClick={() => setVoterTab('manual')}>Add Manually</button>
+            <button type="button" className={voterTab === 'upload' ? 'active' : ''} onClick={() => setVoterTab('upload')}>Upload Spreadsheet</button>
+          </div>
+          {voterTab === 'manual' && (
+            <div className="voter-manual">
+              <input value={voterEmail} onChange={e => setVoterEmail(e.target.value)} placeholder="Voter Email Address" />
+              <button type="button" onClick={handleAddVoter}>Add</button>
+              <div className="voter-list">
+                {customVoters.length === 0 ? (
+                  <div className="no-voters">
+                    <span className="voter-icon">👥</span>
+                    <p>No voters added yet</p>
+                    <p className="voter-hint">Add voters manually or upload a spreadsheet to get started</p>
+                  </div>
+                ) : (
+                  <ul>
+                    {customVoters.map((email, idx) => (
+                      <li key={idx}>{email}</li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
           )}
-          {voterType === 'custom' && (
-            <input value={customVoters.join(', ')} onChange={e => setCustomVoters(e.target.value.split(','))} placeholder="Custom Voter Emails (comma separated)" />
+          {voterTab === 'upload' && (
+            <div className="voter-upload">
+              <input type="file" accept=".csv,.xls,.xlsx,.txt" />
+              <p className="voter-hint">Click to upload or drag and drop. CSV, TXT, XLS, or XLSX files.</p>
+            </div>
           )}
           <div className="modal-actions">
             <button type="button" onClick={onClose}>Cancel</button>
@@ -62,5 +102,4 @@ const CreateElectionModal = ({ open, onClose, onCreate }) => {
     </div>
   );
 };
-
 export default CreateElectionModal;

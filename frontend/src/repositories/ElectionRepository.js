@@ -7,7 +7,12 @@ const elections = [
     students: 41,
     startDate: '2024-01-15',
     endDate: '2024-01-23',
-    hasVoted: false
+    hasVoted: false,
+    creator: 'john@example.com',
+    candidates: [
+      { name: 'Alice Johnson', description: 'Focus on student activities', votes: 25 },
+      { name: 'Bob Smith', description: 'Improve facilities', votes: 20 }
+    ]
   },
   {
     id: 2,
@@ -17,7 +22,12 @@ const elections = [
     students: 30,
     startDate: '2024-12-01',
     endDate: '2024-12-10',
-    hasVoted: false
+    hasVoted: false,
+    creator: 'manager1@ensia.edu',
+    candidates: [
+      { name: 'Eve Member', description: 'Support class events', votes: 0 },
+      { name: 'Frank Student', description: 'Promote inclusivity', votes: 0 }
+    ]
   },
   {
     id: 3,
@@ -27,7 +37,12 @@ const elections = [
     students: 25,
     startDate: '2024-09-01',
     endDate: '2024-09-15',
-    hasVoted: true
+    hasVoted: true,
+    creator: 'manager2@teachers.edu',
+    candidates: [
+      { name: 'Grace Lee', description: 'Focus on sports', votes: 20 },
+      { name: 'Henry Brown', description: 'Improve facilities', votes: 15 }
+    ]
   },
   {
     id: 4,
@@ -37,7 +52,12 @@ const elections = [
     students: 50,
     startDate: '2024-11-20',
     endDate: '2024-11-30',
-    hasVoted: false
+    hasVoted: false,
+    creator: 'john@example.com',
+    candidates: [
+      { name: 'Ivy Green', description: 'Focus on cultural events', votes: 25 },
+      { name: 'Jack Miller', description: 'Improve facilities', votes: 20 }
+    ]
   },
   {
     id: 5,
@@ -47,15 +67,20 @@ const elections = [
     students: 20,
     startDate: '2024-12-10',
     endDate: '2024-12-20',
-    hasVoted: false
+    hasVoted: false,
+    creator: 'manager1@ensia.edu',
+    candidates: [
+      { name: 'Katie Wilson', description: 'Focus on library services', votes: 0 },
+      { name: 'Leo Martinez', description: 'Improve facilities', votes: 0 }
+    ]
   }
 ];
 
 export const getElections = () => elections;
 export const addElection = (election) => { elections.push(election); };
-export const createElection = (election) => {
+export const createElection = (election, creatorEmail) => {
   const newId = elections.length ? Math.max(...elections.map(e => e.id)) + 1 : 1;
-  elections.push({ ...election, id: newId });
+  elections.push({ ...election, id: newId, creator: creatorEmail });
 };
 export const getStats = () => {
   const activeElections = elections.filter(e => e.status.toLowerCase() === 'active').length;
