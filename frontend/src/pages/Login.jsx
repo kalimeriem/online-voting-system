@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
@@ -6,7 +7,29 @@ import Input from "../components/Input";
 import myLogo from "../assets/logo.png";
 import "../styles/auth.css";
 
+// Validation state + function (validation-only)
+const errorsInit = {};
+
 export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const [errors, setErrors] = useState(errorsInit);
+  const [serverErrors, setServerErrors] = useState({});
+  const [backendError, setBackendError] = useState("");
+
+  const validate = () => {
+    const newErrors = {};
+
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(email)) newErrors.email = "Invalid email format";
+
+    if (!password.trim()) newErrors.password = "Password is required";
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   return (
     <div className="auth-gradient">
       <motion.div
@@ -70,7 +93,7 @@ export default function Login() {
                 </p>
               )}
 
-              <button className="auth-btn" onClick={handleSubmit}>
+              <button className="auth-btn" onClick={() => {}}>
                 Sign In
               </button>
 

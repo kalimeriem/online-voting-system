@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
@@ -7,6 +8,38 @@ import myLogo from "../assets/logo.png";
 import "../styles/auth.css";
 
 export default function Register() {
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+
+  const [errors, setErrors] = useState({});
+  const [serverErrors, setServerErrors] = useState({});
+  const [backendError, setBackendError] = useState("");
+
+  const [showPasswordRules, setShowPasswordRules] = useState(false);
+
+  const [passwordRules, setPasswordRules] = useState({
+    length: false,
+    lowercase: false,
+    uppercase: false,
+    number: false,
+    special: false,
+  });
+
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
+  const validatePassword = (password) =>
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-]).{8,}$/.test(password);
+
+  const validateFullName = (name) => {
+    const words = name.trim().split(/\s+/);
+    return /^[A-Za-z\s]+$/.test(name) && words.length >= 2;
+  };
+
+  const renderRuleIcon = (isValid) =>
+    isValid ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />;
+
   return (
     <div className="auth-gradient">
       <motion.div
@@ -26,8 +59,8 @@ export default function Register() {
 
         {/* Card */}
         <motion.div style={{ width: "100%" }}>
-          <AuthCard title="Create Account" subtitle="Create a new account to start voting"> 
-            <form onSubmit={handleSubmit} className="space">
+          <AuthCard title="Create Account" subtitle="Create a new account to start voting">
+            <form onSubmit={() => {}} className="space">
 
               {/* Full Name */}
               <Input
@@ -92,19 +125,19 @@ export default function Register() {
               {showPasswordRules && (
                 <div className="password-rules">
                   <p className={passwordRules.length ? "rule-ok" : "rule-fail"}>
-                    {passwordRules.length ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />} At least 8 characters
+                    {renderRuleIcon(passwordRules.length)} At least 8 characters
                   </p>
                   <p className={passwordRules.lowercase ? "rule-ok" : "rule-fail"}>
-                    {passwordRules.lowercase ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />} One lowercase letter
+                    {renderRuleIcon(passwordRules.lowercase)} One lowercase letter
                   </p>
                   <p className={passwordRules.uppercase ? "rule-ok" : "rule-fail"}>
-                    {passwordRules.uppercase ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />} One uppercase letter
+                    {renderRuleIcon(passwordRules.uppercase)} One uppercase letter
                   </p>
                   <p className={passwordRules.number ? "rule-ok" : "rule-fail"}>
-                    {passwordRules.number ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />} One number
+                    {renderRuleIcon(passwordRules.number)} One number
                   </p>
                   <p className={passwordRules.special ? "rule-ok" : "rule-fail"}>
-                    {passwordRules.special ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />} One special character
+                    {renderRuleIcon(passwordRules.special)} One special character
                   </p>
                 </div>
               )}
