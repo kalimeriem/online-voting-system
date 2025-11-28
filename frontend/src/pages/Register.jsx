@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
@@ -6,6 +6,7 @@ import AuthCard from "../components/AuthCard";
 import Input from "../components/Input";
 import myLogo from "../assets/logo.png";
 import "../styles/auth.css";
+import { authRepository } from "../api/repositories/authRepository";
 
 export default function Register() {
   const [fullName, setFullName] = useState("");
@@ -14,7 +15,9 @@ export default function Register() {
   const [confirm, setConfirm] = useState("");
 
   const [errors, setErrors] = useState({});
+
   const [serverErrors, setServerErrors] = useState({});
+
   const [backendError, setBackendError] = useState("");
 
   const [showPasswordRules, setShowPasswordRules] = useState(false);
@@ -40,6 +43,56 @@ export default function Register() {
   const renderRuleIcon = (isValid) =>
     isValid ? <CheckCircle size={16} color="#22c55e" /> : <XCircle size={16} color="#ef4444" />;
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setErrors({});
+    setServerErrors({});
+    setBackendError("");
+
+    const newErrors = {};
+
+    if (!fullName.trim()) newErrors.fullName = "Full name is required";
+    else if (!validateFullName(fullName))
+      newErrors.fullName = "Full name must contain at least 2 words";
+
+    if (!email.trim()) newErrors.email = "Email is required";
+    else if (!validateEmail(email)) newErrors.email = "Invalid email format";
+
+    if (!password) {
+      newErrors.password = "Password is required";
+      setShowPasswordRules(true);
+    } else if (!validatePassword(password)) {
+      newErrors.password = "Password is weak";
+      setShowPasswordRules(true);
+    } else {
+      setShowPasswordRules(false);
+    }
+
+    if (!confirm) newErrors.confirm = "Please confirm password";
+    else if (confirm !== password) newErrors.confirm = "Passwords do not match";
+
+    setErrors(newErrors);
+
+    if (Object.keys(newErrors).length > 0) return;
+
+    try {
+      const res = await authRepository.register(fullName, email, password);
+      console.log("Register success", res);
+
+
+    } catch (err) {
+      console.log("Backend error:", err);
+
+      if (err?.fieldErrors) {
+        setServerErrors(err.fieldErrors);
+        return;
+      }
+
+      setBackendError(err.message || "Registration failed. Please try again.");
+    }
+  };
+
   return (
     <div className="auth-gradient">
       <motion.div
@@ -60,7 +113,7 @@ export default function Register() {
         {/* Card */}
         <motion.div style={{ width: "100%" }}>
           <AuthCard title="Create Account" subtitle="Create a new account to start voting">
-            <form onSubmit={() => {}} className="space">
+            <form onSubmit={handleSubmit} className="space">
 
               {/* Full Name */}
               <Input
@@ -184,4 +237,3 @@ export default function Register() {
     </div>
   );
 }
-

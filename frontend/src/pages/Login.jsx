@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
@@ -6,15 +6,13 @@ import AuthCard from "../components/AuthCard";
 import Input from "../components/Input";
 import myLogo from "../assets/logo.png";
 import "../styles/auth.css";
-
-// Validation state + function (validation-only)
-const errorsInit = {};
+import { authRepository } from "../api/repositories/authRepository";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const [errors, setErrors] = useState(errorsInit);
+  const [errors, setErrors] = useState({});
   const [serverErrors, setServerErrors] = useState({});
   const [backendError, setBackendError] = useState("");
 
@@ -28,6 +26,33 @@ export default function Login() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setErrors({});
+    setServerErrors({});
+    setBackendError("");
+
+    if (!validate()) return;
+
+    try {
+      const res = await authRepository.login(email, password);
+
+      localStorage.setItem("token", res.token);
+      console.log("Login successful", res);
+
+    } catch (err) {
+      console.log("Backend error:", err);
+
+      if (err?.fieldErrors) {
+        setServerErrors(err.fieldErrors);
+        return;
+      }
+
+      setBackendError(err.message || "Login failed. Please try again.");
+    }
   };
 
   return (
@@ -93,7 +118,7 @@ export default function Login() {
                 </p>
               )}
 
-              <button className="auth-btn" onClick={() => {}}>
+              <button className="auth-btn" onClick={handleSubmit}>
                 Sign In
               </button>
 
@@ -114,4 +139,3 @@ export default function Login() {
     </div>
   );
 }
-
