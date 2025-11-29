@@ -26,7 +26,7 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
       department,
       customVoters,
       status: 'upcoming',
-      students: 0,
+      voters: 0,
       hasVoted: false
     });
     setTitle('');

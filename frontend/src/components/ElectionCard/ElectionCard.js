@@ -15,11 +15,19 @@ const ElectionCard = ({ election, onCastVote }) => {
       <div className="election-stats">
         <div className="stat-item">
           <span className="stat-icon">👥</span>
-          <span>Students</span>
+          {typeof election.department === 'string' && election.department.trim() !== '' ? (
+            <span>Department: {election.department}</span>
+          ) : (
+            <span>No department</span>
+          )}
         </div>
         <div className="stat-item">
           <span className="stat-icon">📊</span>
-          <span>{election.students} total cast</span>
+          {election.status.toLowerCase() === 'upcoming' ? (
+            <span>{election.eligibleVoters ? election.eligibleVoters.length : 0} eligible voters</span>
+          ) : (
+            <span>{election.voters || (election.eligibleVoters ? election.eligibleVoters.length : 0)} total cast</span>
+          )}
         </div>
         <div className="stat-item">
           <span className="stat-icon">📅</span>

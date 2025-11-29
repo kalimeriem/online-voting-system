@@ -4,9 +4,16 @@ import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
+import StatsGrid from '../../components/StatsGrid/StatsGrid';
 
 const UserElectionDetails = ({ election, user }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
+  const [stats, setStats] = useState({
+    department: election.department || 'No Department',
+    totalVotes: election.voters || (election.eligibleVoters ? election.eligibleVoters.length : 0),
+    startDate: election.startDate,
+    endDate: election.endDate
+  });
   return (
     <div className="dashboard-wrapper">
       <Header user={user} />
@@ -19,20 +26,7 @@ const UserElectionDetails = ({ election, user }) => {
               <span className={`status-badge ${election.status.toLowerCase()}`}>{election.status}</span>
             </div>
             <p className="election-description">{election.description}</p>
-            <div className="election-stats">
-              <div className="stat-item">
-                <span className="stat-icon">👥</span>
-                <span>Department: {election.department || 'N/A'}</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-icon">📊</span>
-                <span>{election.candidates.reduce((sum, c) => sum + (c.votes || 0), 0)} total votes</span>
-              </div>
-              <div className="stat-item">
-                <span className="stat-icon">📅</span>
-                <span>Start: {election.startDate} | End: {election.endDate}</span>
-              </div>
-            </div>
+            <StatsGrid stats={stats} />
             <div className="vote-section">
               <h3>Cast Your Vote</h3>
               <p>Select one candidate to vote for</p>

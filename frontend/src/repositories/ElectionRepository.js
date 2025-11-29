@@ -4,7 +4,13 @@ const elections = [
     title: 'Student Council President 2024',
     description: 'Annual election for student council president position',
     status: 'Active',
-    students: 41,
+      eligibleVoters: [
+        ...require('../repositories/DepartmentRepository').getDepartmentMembers(3),
+        { email: 'custom1@example.com', name: 'Custom Voter 1' },
+        { email: 'custom2@example.com', name: 'Custom Voter 2' }
+      ],
+      voters: 41,
+      department: 'Students',
     startDate: '2024-01-15',
     endDate: '2024-01-23',
     hasVoted: false,
@@ -19,7 +25,12 @@ const elections = [
     title: 'Class Representative 2024',
     description: 'Election for class representative',
     status: 'Upcoming',
-    students: 30,
+      eligibleVoters: [
+        ...require('../repositories/DepartmentRepository').getDepartmentMembers(1),
+        { email: 'custom3@example.com', name: 'Custom Voter 3' }
+      ],
+      voters: 3,
+      department: 'ENSIA School',
     startDate: '2024-12-01',
     endDate: '2024-12-10',
     hasVoted: false,
@@ -34,7 +45,12 @@ const elections = [
     title: 'Sports Committee Head 2024',
     description: 'Election for head of the sports committee',
     status: 'Completed',
-    students: 25,
+      eligibleVoters: [
+        ...require('../repositories/DepartmentRepository').getDepartmentMembers(2),
+        { email: 'custom4@example.com', name: 'Custom Voter 4' }
+      ],
+      voters: 25,
+      department: 'Teachers',
     startDate: '2024-09-01',
     endDate: '2024-09-15',
     hasVoted: true,
@@ -49,7 +65,12 @@ const elections = [
     title: 'Cultural Secretary 2024',
     description: 'Election for cultural secretary position',
     status: 'Active',
-    students: 50,
+      eligibleVoters: [
+        ...require('../repositories/DepartmentRepository').getDepartmentMembers(3),
+        { email: 'custom5@example.com', name: 'Custom Voter 5' }
+      ],
+      voters: 50,
+      department: 'Students',
     startDate: '2024-11-20',
     endDate: '2024-11-30',
     hasVoted: false,
@@ -64,7 +85,11 @@ const elections = [
     title: 'Library Committee Member 2024',
     description: 'Election for library committee member',
     status: 'Upcoming',
-    students: 20,
+      eligibleVoters: [
+        { email: 'custom6@example.com', name: 'Custom Voter 6' }
+      ],
+      voters: 0,
+      department: 'Library',
     startDate: '2024-12-10',
     endDate: '2024-12-20',
     hasVoted: false,

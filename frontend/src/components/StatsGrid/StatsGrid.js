@@ -1,6 +1,7 @@
 import React from 'react';
 import './StatsGrid.css';
 
+
 const StatsGrid = ({ stats }) => {
   const statItems = [
     { 
@@ -26,24 +27,36 @@ const StatsGrid = ({ stats }) => {
       value: stats.completed, 
       icon: '✅', 
       color: 'purple' 
-    }
+    },
+    ...(stats.startDate ? [{
+      label: 'Start Date',
+      value: stats.startDate instanceof Date ? stats.startDate.toLocaleDateString() : stats.startDate,
+      icon: '📅',
+      color: 'purple'
+    }] : []),
+    ...(stats.endDate ? [{
+      label: 'End Date',
+      value: stats.endDate instanceof Date ? stats.endDate.toLocaleDateString() : stats.endDate,
+      icon: '📅',
+      color: 'orange'
+    }] : []),
   ];
 
- const visibleItems = statItems.filter(item => item.value !== undefined);
+  const visibleItems = statItems.filter(item => item.value !== undefined);
 
-return (
-  <div className="stats-grid">
-    {visibleItems.map((item, index) => (
-      <div key={index} className="stat-card">
-        <div className="stat-header">
-          <span>{item.label}</span>
-          <span className={`stat-icon ${item.color}`}>{item.icon}</span>
+  return (
+    <div className="stats-grid">
+      {visibleItems.map((item, index) => (
+        <div key={index} className="stat-card">
+          <div className="stat-header">
+            <span>{item.label}</span>
+            <span className={`stat-icon ${item.color}`}>{item.icon}</span>
+          </div>
+          <div className="stat-number">{item.value}</div>
         </div>
-        <div className="stat-number">{item.value}</div>
-      </div>
-    ))}
-  </div>
-);
+      ))}
+    </div>
+  );
 };
 
 export default StatsGrid;

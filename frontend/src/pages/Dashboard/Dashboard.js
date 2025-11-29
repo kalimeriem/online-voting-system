@@ -26,7 +26,7 @@ const Dashboard = () => {
       title: 'Student Council President 2024',
       description: 'Annual election for student council president position',
       status: 'Active',
-      students: 41,
+      voters: 41,
       endDate: '23/10/2024',
       hasVoted: false
     }
@@ -36,7 +36,7 @@ const Dashboard = () => {
       title: 'Student Council Vice President 2024',
       description: 'Annual election for student council vice president position',
       status: 'Upcoming',
-      students: 41,
+      voters: 41,
     }
   ]);
 
