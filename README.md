@@ -20,8 +20,8 @@ npm install
 npm run dev
 ```
 
-## Make sure you create environment variables:
+#### Make sure you create environment variables:
 
-# DATABASE_URL: "your pg db link"
+DATABASE_URL: "your pg db link"
 
-# JWT_SECRET: "this can be anything"
+JWT_SECRET: "this can be anything"
