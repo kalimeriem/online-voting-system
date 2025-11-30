@@ -1,0 +1,127 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int       @id @default(autoincrement())
+  email       String    @unique
+  password    String
+  name        String?
+  createdAt   DateTime  @default(now())
+
+  createdElections Election[]   @relation("ElectionCreator")
+  departmentMembers DepartmentMember[]
+  electionParticipants ElectionParticipant[]
+  createdInvitations Invitation[] @relation("InvitationCreator")
+  votes           Vote[]
+}
+
+model Department {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  members     DepartmentMember[]
+  elections   Election[]
+  invitations Invitation[]
+}
+
+model DepartmentMember {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  departmentId Int
+  isManager    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  user       User       @relation(fields: [userId], references: [id])
+  department Department @relation(fields: [departmentId], references: [id])
+
+  @@unique([userId, departmentId])
+}
+
+model Election {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  status      String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  creatorId Int
+  creator   User        @relation("ElectionCreator", fields: [creatorId], references: [id])
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  candidates    Candidate[]
+  participants  ElectionParticipant[]
+  votes         Vote[]
+  invitations   Invitation[]
+}
+
+model Candidate {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
+
+  electionId Int
+  election   Election @relation(fields: [electionId], references: [id])
+
+  votes      Vote[]
+}
+
+model ElectionParticipant {
+  id                Int      @id @default(autoincrement())
+  electionId        Int
+  userId            Int
+  addedByDepartment Boolean  @default(false)
+
+  election Election @relation(fields: [electionId], references: [id])
+  user     User     @relation(fields: [userId], references: [id])
+
+  @@unique([electionId, userId])
+}
+
+model Invitation {
+  id          Int       @id @default(autoincrement())
+  type        String        // "DEPARTMENT" | "ELECTION"
+  email       String?
+  status      String    @default("PENDING")
+  createdAt   DateTime  @default(now())
+  respondedAt DateTime?
+
+  createdById Int
+  createdBy   User      @relation("InvitationCreator", fields: [createdById], references: [id])
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id])
+
+  electionId Int?
+  election   Election?  @relation(fields: [electionId], references: [id])
+}
+
+model Vote {
+  id          Int       @id @default(autoincrement())
+  createdAt   DateTime  @default(now())
+
+  electionId  Int
+  userId      Int
+  candidateId Int
+
+  election  Election  @relation(fields: [electionId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  candidate Candidate @relation(fields: [candidateId], references: [id])
+
+  @@unique([electionId, userId])
+}
+
