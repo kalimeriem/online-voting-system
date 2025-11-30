@@ -1,9 +1,13 @@
-// App.js
-import React from "react";
-import AppRouter from "./AppRouter";
+import React from 'react';
+import Dashboard from './pages/Dashboard/Dashboard';
+import './App.css';
 
 function App() {
-  return <AppRouter />;
+  return (
+    <div className="App">
+      <Dashboard />
+    </div>
+  );
 }
 
 export default App;
