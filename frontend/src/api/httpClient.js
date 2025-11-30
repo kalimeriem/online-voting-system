@@ -1,12 +1,14 @@
-export const httpClient = {
-  post: async (url, data) => {
-    const response = await fetch(`https://api.example.com${url}`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const result = await response.json();
-    if (!response.ok) throw result;
-    return result;
-  },
-};
+import axios from "axios";
+
+const api = axios.create({
+  baseURL: "http://localhost:5000",
+  headers: { "Content-Type": "application/json" },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
+
+export default api;

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import AuthCard from "../components/AuthCard";
@@ -9,6 +9,8 @@ import "../styles/auth.css";
 import { authRepository } from "../api/repositories/authRepository";
 
 export default function Login() {
+  const navigate = useNavigate();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -41,7 +43,11 @@ export default function Login() {
       const res = await authRepository.login(email, password);
 
       localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+
       console.log("Login successful", res);
+
+      navigate("/dashboard");
 
     } catch (err) {
       console.log("Backend error:", err);
@@ -73,13 +79,9 @@ export default function Login() {
 
         {/* Card */}
         <motion.div style={{ width: "100%" }}>
-          <AuthCard
-            title="Welcome back"
-            subtitle="Sign in to your account to continue"
-          >
+          <AuthCard title="Welcome back" subtitle="Sign in to your account to continue">
             <div className="space">
 
-              {/* Email */}
               <Input
                 label="Email"
                 placeholder="you@example.com"
@@ -94,7 +96,6 @@ export default function Login() {
                 </p>
               )}
 
-              {/* Password */}
               <Input
                 label="Password"
                 type="password"
@@ -110,7 +111,6 @@ export default function Login() {
                 </p>
               )}
 
-              {/* Global backend error */}
               {backendError && (
                 <p className="error-text icon-error global-error">
                   <AlertCircle size={16} />

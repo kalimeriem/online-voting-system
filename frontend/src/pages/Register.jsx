@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle, XCircle } from "lucide-react";
 import AuthCard from "../components/AuthCard";
@@ -9,19 +9,18 @@ import "../styles/auth.css";
 import { authRepository } from "../api/repositories/authRepository";
 
 export default function Register() {
+  const navigate = useNavigate();
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
   const [errors, setErrors] = useState({});
-
   const [serverErrors, setServerErrors] = useState({});
-
   const [backendError, setBackendError] = useState("");
 
   const [showPasswordRules, setShowPasswordRules] = useState(false);
-
   const [passwordRules, setPasswordRules] = useState({
     length: false,
     lowercase: false,
@@ -31,7 +30,6 @@ export default function Register() {
   });
 
   const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-
   const validatePassword = (password) =>
     /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_\-]).{8,}$/.test(password);
 
@@ -65,8 +63,6 @@ export default function Register() {
     } else if (!validatePassword(password)) {
       newErrors.password = "Password is weak";
       setShowPasswordRules(true);
-    } else {
-      setShowPasswordRules(false);
     }
 
     if (!confirm) newErrors.confirm = "Please confirm password";
@@ -78,8 +74,13 @@ export default function Register() {
 
     try {
       const res = await authRepository.register(fullName, email, password);
+
+      localStorage.setItem("token", res.token);
+      localStorage.setItem("user", JSON.stringify(res.user));
+
       console.log("Register success", res);
 
+      navigate("/dashboard")
 
     } catch (err) {
       console.log("Backend error:", err);
@@ -115,7 +116,6 @@ export default function Register() {
           <AuthCard title="Create Account" subtitle="Create a new account to start voting">
             <form onSubmit={handleSubmit} className="space">
 
-              {/* Full Name */}
               <Input
                 label="Full Name"
                 placeholder="John Doe"
@@ -130,7 +130,6 @@ export default function Register() {
                 </p>
               )}
 
-              {/* Email */}
               <Input
                 label="Email"
                 placeholder="you@example.com"
@@ -145,7 +144,6 @@ export default function Register() {
                 </p>
               )}
 
-              {/* Password */}
               <Input
                 label="Password"
                 type="password"
@@ -174,7 +172,6 @@ export default function Register() {
                 </p>
               )}
 
-              {/* Password Rules (live) */}
               {showPasswordRules && (
                 <div className="password-rules">
                   <p className={passwordRules.length ? "rule-ok" : "rule-fail"}>
@@ -195,7 +192,6 @@ export default function Register() {
                 </div>
               )}
 
-              {/* Confirm Password */}
               <Input
                 label="Confirm Password"
                 type="password"
@@ -211,7 +207,6 @@ export default function Register() {
                 </p>
               )}
 
-              {/* GLOBAL BACKEND ERROR */}
               {backendError && (
                 <p className="error-text icon-error global-error">
                   <AlertCircle size={16} />
