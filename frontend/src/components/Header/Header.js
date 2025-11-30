@@ -29,17 +29,23 @@ export default function DashboardHeader({ user, toggleSidebar }) {
             <span className="notification-dot"></span>
           </button>
 
+
+
+
           <div className="user-profile">
             <div className="user-avatar">
               <span className="user-initials">
                 {user?.name ? user.name.substring(0, 2).toUpperCase() : 'DM'}
               </span>
+
             </div>
             <div className="user-info">
               <span className="user-name">{user?.name || 'Desiali'}</span>
               <span className="user-email">{user?.email || 'incpanslat648@gmail.com'}</span>
             </div>
           </div>
+
+
 
           <button className="icon-button">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">

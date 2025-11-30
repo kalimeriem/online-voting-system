@@ -1,8 +1,8 @@
-.activity-list {
+.list {
   space-y: 16px;
 }
-
-.activity-item {
+/*pour chaque rec  */
+.activity {
   display: flex;
   align-items: center;
   gap: 16px;
@@ -12,8 +12,7 @@
   border: 1px solid #e2e8f0;
   margin-bottom: 12px;
 }
-
-.activity-icon {
+.icon {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -23,25 +22,27 @@
   font-size: 16px;
 }
 
-.activity-icon.green { background: #dcfce7; }
-.activity-icon.blue { background: #dbeafe; }
-.activity-icon.purple { background: #e9d5ff; }
 
-.activity-content {
+
+
+.icon.green { background: #dcfce7; }
+.icon.blue { background: #dbeafe; }
+.icon.purple { background: #e9d5ff; }
+
+.content {
   flex: 1;
 }
 
-.activity-text {
+.text {
   color: #1e293b;
   margin-bottom: 4px;
 }
-
-.activity-time {
+.time {
   color: #64748b;
   font-size: 14px;
 }
 
-.section-subtitle {
+.subtitle {
   color: #64748b;
   margin-bottom: 20px;
 }

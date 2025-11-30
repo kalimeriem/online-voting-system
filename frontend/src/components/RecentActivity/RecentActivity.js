@@ -26,17 +26,17 @@ const RecentActivity = () => {
   return (
     <div className="section">
       <h2>Recent Activity</h2>
-      <p className="section-subtitle">Your latest voting activities</p>
+      <p className="subtitle">Your latest voting activities</p>
       
-      <div className="activity-list">
+      <div className="list">
         {activities.map((activity, index) => (
-          <div key={index} className="activity-item">
-            <div className={`activity-icon ${activity.color}`}>
+          <div key={index} className="activity">
+            <div className={`icon ${activity.color}`}>
               {activity.icon}
             </div>
-            <div className="activity-content">
-              <p className="activity-text">{activity.action}</p>
-              <span className="activity-time">{activity.time}</span>
+            <div className="content">
+              <p className="text">{activity.action}</p>
+              <span className="time">{activity.time}</span>
             </div>
           </div>
         ))}

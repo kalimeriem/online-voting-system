@@ -3,36 +3,58 @@ import './ElectionCard.css';
 
 const ElectionCard = ({ election, onCastVote }) => {
   return (
-    <div className="election-card">
-      <div className="election-header">
+    <div className="card">
+
+
+      <div className="header">
         <h3>{election.title}</h3>
-        <span className={`status-badge ${election.status.toLowerCase()}`}>
+
+
+
+        <span className={`status ${election.status.toLowerCase()}`}>
           {election.status}
+
         </span>
+
       </div>
-      <p className="election-description">{election.description}</p>
-      
-      <div className="election-stats">
-        <div className="stat-item">
-          <span className="stat-icon">👥</span>
+
+
+
+
+      <p className="votedesc">{election.description}</p>
+
+      <div className="details">
+        <div className="detail">
+
+
+
+          <span className="icon">👥</span>
           <span>Students</span>
+
         </div>
-        <div className="stat-item">
-          <span className="stat-icon">📊</span>
+        <div className="detail">
+          <span className="icon">📊</span>
           <span>{election.students} total cast</span>
         </div>
-        <div className="stat-item">
-          <span className="stat-icon">📅</span>
+
+        <div className="detail">
+
+          <span className="icon">📅</span>
           <span>End: {election.endDate}</span>
+
         </div>
       </div>
-      
+
       <button 
-        className="cast-vote-btn"
+        className="vote"
+
         onClick={() => onCastVote(election.id)}
       >
         Cast Your Vote
       </button>
+
+
+      
     </div>
   );
 };

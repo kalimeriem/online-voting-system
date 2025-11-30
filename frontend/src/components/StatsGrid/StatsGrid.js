@@ -2,6 +2,10 @@ import React from 'react';
 import './StatsGrid.css';
 
 const StatsGrid = ({ stats }) => {
+
+
+
+
   const statItems = [
     { 
       label: 'My Departments', 
@@ -21,7 +25,9 @@ const StatsGrid = ({ stats }) => {
       icon: '⏰', 
       color: 'orange' 
     },
-    { 
+
+
+    {  
       label: 'Completed', 
       value: stats.completed, 
       icon: '✅', 
@@ -30,14 +36,14 @@ const StatsGrid = ({ stats }) => {
   ];
 
   return (
-    <div className="stats-grid">
+    <div className="grid">
       {statItems.map((item, index) => (
-        <div key={index} className="stat-card">
-          <div className="stat-header">
+        <div key={index} className="card">
+    <div className="header">
             <span>{item.label}</span>
-            <span className={`stat-icon ${item.color}`}>{item.icon}</span>
+ <span className={`icon ${item.color}`}>{item.icon}</span>
           </div>
-          <div className="stat-number">{item.value}</div>
+                      <div className="number">{item.value}</div>
         </div>
       ))}
     </div>

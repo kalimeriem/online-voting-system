@@ -13,18 +13,18 @@ const Dashboard = () => {
     email: 'john@example.com'
   });
 
-  const [stats] = useState({
+         const [overview] = useState({
     departments: 4,
     activeElections: 1,
     upcoming: 1,
     completed: 3
   });
 
-  const [elections] = useState([
+  const [list] = useState([
     {
       id: 1,
       title: 'Student Council President 2024',
-      description: 'Annual election for student council president position',
+      description: 'Election for the student council president role.',
       status: 'Active',
       students: 41,
       endDate: '23/10/2024',
@@ -32,43 +32,41 @@ const Dashboard = () => {
     }
   ]);
 
-  const handleCastVote = (electionId) => {
-    console.log(`Casting vote for election ${electionId}`);
+  const castVote = (id) => {
+    console.log('Vote submitted for:', id);
   };
 
   return (
-    <div className="dashboard-wrapper">
-      <Header user={user} />
+    <div className="dashboard">
+       <Header user={user} />
 
       <div className="dashboard-container">
         <Sidebar />
 
-        <div className="main-content">
-          <div className="welcome-section">
-            <h1 className="welcome-title">Welcome back, {user.name}</h1>
-            <p className="welcome-subtitle">
-              Here's what's happening with your voting activities
-            </p>
-          </div>
+        <div className="main">
+          <div className="welcome">
+            <h1 className="welcome-t">Welcome back, {user.name}</h1>
+            <p className="welcome-sub">Here’s a quick look at your voting status</p>
+                     </div>
 
-          <StatsGrid stats={stats} />
+          <StatsGrid stats={overview} />
 
           <div className="section">
-            <div className="section-header">
+            <div className="section-head">
               <h2>Active Elections</h2>
-              <button className="view-all-btn">View all →</button>
+                <button className="view-all">View all →</button>
             </div>
 
-            {elections.map(election => (
+            {list.map((item) => (
               <ElectionCard
-                key={election.id}
-                election={election}
-                onCastVote={handleCastVote}
+                key={item.id}
+                 election={item}
+                onCastVote={castVote}
               />
             ))}
           </div>
 
-          <DepartmentSection />
+<DepartmentSection />
           <RecentActivity />
         </div>
       </div>

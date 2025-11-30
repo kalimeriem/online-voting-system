@@ -1,76 +1,70 @@
-.dashboard-wrapper {
+.dashboard {
   min-height: 100vh;
-  background-color: #f8fafc;
+  background: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
-
-
 .dashboard-container {
   display: flex;
-  margin-left: 240px;
   min-height: calc(100vh - 73px);
+  margin-left: 240px;
 }
 
-header, 
+
+
+
+
+
+header,
 .header-wrapper {
-  margin-left: 240px; 
+  margin-left: 240px;
 }
-
-.main-content {
+.main {
   flex: 1;
+  margin-top: 73px;
   padding: 2rem;
-  margin-top: 73px; 
-  background-color: #f9fafb;
+  background: #f9fafb;
   overflow-y: auto;
 }
-
 .welcome-section {
   margin-bottom: 2rem;
   padding: 0 0.5rem;
 }
-
-.welcome-title {
+.welcome-t{
   font-size: 1.75rem;
   font-weight: 600;
   color: #111827;
-  margin: 0 0 0.5rem 0;
+  margin-bottom: 0.5rem;
 }
-
-.welcome-subtitle {
+.welcome-sub {
   font-size: 0.95rem;
   color: #6b7280;
-  margin: 0;
 }
-
 .section {
   margin-bottom: 40px;
 }
-
-.section-header {
+.section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
-
-.section-header h2 {
+.section-head h2 {
   font-size: 20px;
   color: #1e293b;
 }
 
-.view-all-btn {
+.view-all {
   background: none;
   border: none;
   color: black;
   cursor: pointer;
   font-size: 14px;
-  transition: color 0.2s;
+  transition: 0.2s;
 }
 
-.view-all-btn:hover {
+.view-all:hover {
   color: #2563eb;
 }
-
 
 @media (max-width: 768px) {
   .dashboard-container {
@@ -83,15 +77,15 @@ header,
     margin-left: 0;
   }
 
-  .main-content {
+  .main {
     padding: 20px;
   }
 
-  .welcome-title {
+  .welcome-t{
     font-size: 1.5rem;
   }
 
-  .welcome-subtitle {
+  .welcome-sub{
     font-size: 0.875rem;
   }
 }
