@@ -2,13 +2,13 @@ import React from 'react';
 import './ElectionCard.css';
 
 const ElectionCard = ({ election, onCastVote }) => {
-  const currentUserEmail = 'john@example.com'; // Replace with dynamic user if needed
-  const isEligible = Array.isArray(election.eligibleVoters) 
+  const currentUser = JSON.parse(localStorage.getItem('user')) || { email: 'john@example.com' };
+  const currentUserEmail = currentUser.email;
+  const isCreator = election.creator === currentUserEmail;
+  const isEligible = Array.isArray(election.eligibleVoters)
   ? election.eligibleVoters.some(v => v.email === currentUserEmail)
   : false;
-  const canVote = isEligible && !election.hasVoted;
-
-  return (
+  const canVote = isEligible && !election.hasVoted && !isCreator;  return (
     <div className="card">
       <div className="header">
         <h3>{election.title}</h3>
@@ -35,9 +35,11 @@ const ElectionCard = ({ election, onCastVote }) => {
       <button 
         className="vote"
         onClick={() => onCastVote(election.id)}
-        disabled={!canVote}
+        disabled={!canVote && !isCreator}
       >
-        {election.hasVoted ? 'Voted' : !isEligible ? 'Not Eligible' : 'Cast Your Vote'}
+        {isCreator ? 'View Admin Panel' : 
+         election.hasVoted ? 'Voted' : 
+         !isEligible ? 'Not Eligible' : 'Cast Your Vote'}
       </button>
     </div>
   );

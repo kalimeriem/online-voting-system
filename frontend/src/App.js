@@ -7,6 +7,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Elections from "./pages/Elections/Elections";
+import ElectionDetailsPage from "./pages/Elections/ElectionDetailsPage";
 
 import "./App.css";
 
@@ -38,6 +39,17 @@ function App() {
               <Sidebar />
               <div className="content" style={{ flex: 1, padding: "20px" }}>
                 <Elections />
+              </div>
+            </div>
+          }
+        />
+        <Route
+          path="/elections/:id"
+          element={
+            <div style={{ display: "flex" }}>
+              <Sidebar />
+              <div className="content" style={{ flex: 1, padding: "20px" }}>
+                <ElectionDetailsPage />
               </div>
             </div>
           }

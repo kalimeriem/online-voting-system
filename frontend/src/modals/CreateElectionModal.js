@@ -11,6 +11,9 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
   const [customVoters, setCustomVoters] = useState([]);
   const [voterTab, setVoterTab] = useState('manual');
   const [voterEmail, setVoterEmail] = useState('');
+  const [candidates, setCandidates] = useState([]);
+  const [candidateName, setCandidateName] = useState('');
+  const [candidateDescription, setCandidateDescription] = useState('');
 
   const departments = getDepartments().filter(dept =>
     dept.members.some(m => m.email === userEmail && m.role === 'manager')
@@ -18,6 +21,10 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (candidates.length === 0) {
+      alert('Please add at least one candidate');
+      return;
+    }
     onCreate({
       title,
       description,
@@ -25,9 +32,11 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
       endDate,
       department,
       customVoters,
+      candidates,
       status: 'upcoming',
       voters: 0,
-      hasVoted: false
+      hasVoted: false,
+      creator: userEmail
     });
     setTitle('');
     setDescription('');
@@ -35,6 +44,9 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
     setEndDate('');
     setDepartment('');
     setCustomVoters([]);
+    setCandidates([]);
+    setCandidateName('');
+    setCandidateDescription('');
     onClose();
   };
 
@@ -43,6 +55,22 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
       setCustomVoters([...customVoters, voterEmail]);
       setVoterEmail('');
     }
+  };
+
+  const handleAddCandidate = () => {
+    if (candidateName.trim()) {
+      setCandidates([...candidates, {
+        name: candidateName.trim(),
+        description: candidateDescription.trim() || '',
+        votes: 0
+      }]);
+      setCandidateName('');
+      setCandidateDescription('');
+    }
+  };
+
+  const handleRemoveCandidate = (index) => {
+    setCandidates(candidates.filter((_, i) => i !== index));
   };
 
   if (!open) return null;
@@ -56,12 +84,52 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
           <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" required />
           <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required />
           <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required />
-          <select value={department} onChange={e => setDepartment(e.target.value)} required>
-            <option value="">Select Department</option>
+          <select value={department} onChange={e => setDepartment(e.target.value)}>
+            <option value="">Select Department (Optional)</option>
             {departments.map(dept => (
               <option key={dept.id} value={dept.name}>{dept.name}</option>
             ))}
           </select>
+          
+          <div className="candidates-section">
+            <h3>Candidates</h3>
+            <div className="candidate-input">
+              <input 
+                value={candidateName} 
+                onChange={e => setCandidateName(e.target.value)} 
+                placeholder="Candidate Name" 
+                required
+              />
+              <input 
+                value={candidateDescription} 
+                onChange={e => setCandidateDescription(e.target.value)} 
+                placeholder="Candidate Description (Optional)" 
+              />
+              <button type="button" onClick={handleAddCandidate}>Add Candidate</button>
+            </div>
+            <div className="candidates-list">
+              {candidates.length === 0 ? (
+                <div className="no-candidates">
+                  <span className="candidate-icon">👤</span>
+                  <p>No candidates added yet</p>
+                  <p className="candidate-hint">Add at least one candidate to create an election</p>
+                </div>
+              ) : (
+                <ul>
+                  {candidates.map((candidate, idx) => (
+                    <li key={idx}>
+                      <div>
+                        <strong>{candidate.name}</strong>
+                        {candidate.description && <span> - {candidate.description}</span>}
+                      </div>
+                      <button type="button" onClick={() => handleRemoveCandidate(idx)}>×</button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+          
           <div className="voter-tabs">
             <button type="button" className={voterTab === 'manual' ? 'active' : ''} onClick={() => setVoterTab('manual')}>Add Manually</button>
             <button type="button" className={voterTab === 'upload' ? 'active' : ''} onClick={() => setVoterTab('upload')}>Upload Spreadsheet</button>

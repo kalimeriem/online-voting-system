@@ -10,7 +10,7 @@ import { getElections, getStats } from '../../api/repositories/ElectionRepositor
 import './Dashboard.css';
 
 const Dashboard = () => {
-  const [user] = useState({
+  const [user] = useState(JSON.parse(localStorage.getItem('user')) || {
     name: 'John',
     email: 'john@example.com'
   });

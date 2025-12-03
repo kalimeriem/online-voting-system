@@ -10,7 +10,7 @@ import './Elections.css';
 import { getElections, getStats, createElection } from '../../api/repositories/ElectionRepository';
 
 const Elections = () => {
-  const [user] = useState({
+  const [user] = useState(JSON.parse(localStorage.getItem('user')) || {
     name: 'John',
     email: 'john@example.com'
   });
@@ -22,7 +22,7 @@ const Elections = () => {
   const [elections, setElections] = useState(getElections());
   const [stats, setStats] = useState(getStats());
   const handleCreateElection = (newElection) => {
-    createElection(newElection);
+    createElection(newElection, user.email);
     setElections(getElections());
     setStats(getStats());
   };

@@ -98,6 +98,50 @@ const elections = [
       { name: 'Katie Wilson', description: 'Focus on library services', votes: 0 },
       { name: 'Leo Martinez', description: 'Improve facilities', votes: 0 }
     ]
+  },
+  {
+    id: 6,
+    title: 'Test Election 2024',
+    description: 'Test election for user functionality',
+    status: 'Active',
+    eligibleVoters: [
+      { email: 'test@gmail.com', name: 'Test User' },
+      { email: 'john@example.com', name: 'John Doe' },
+      { email: 'alice@example.com', name: 'Alice Smith' }
+    ],
+    voters: 0,
+    department: 'Engineering',
+    startDate: '2024-12-01',
+    endDate: '2024-12-15',
+    hasVoted: false,
+    creator: 'test@gmail.com',
+    candidates: [
+      { name: 'Alice Johnson', description: 'Innovation focus', votes: 0 },
+      { name: 'Bob Wilson', description: 'Team collaboration', votes: 0 }
+    ]
+  },
+  {
+    id: 7,
+    title: 'Department Head Election 2024',
+    description: 'Choose the new department head for Computer Science',
+    status: 'Active',
+    eligibleVoters: [
+      { email: 'test@gmail.com', name: 'Test User' },
+      { email: 'alice@example.com', name: 'Alice Smith' },
+      { email: 'bob@example.com', name: 'Bob Johnson' },
+      { email: 'carol@example.com', name: 'Carol Davis' }
+    ],
+    voters: 0,
+    department: 'Computer Science',
+    startDate: '2024-12-01',
+    endDate: '2024-12-20',
+    hasVoted: false,
+    creator: 'admin@university.edu',
+    candidates: [
+      { name: 'Dr. Sarah Chen', description: 'Research excellence focus', votes: 0 },
+      { name: 'Dr. Michael Rodriguez', description: 'Student engagement priority', votes: 0 },
+      { name: 'Dr. Emily Thompson', description: 'Industry partnerships', votes: 0 }
+    ]
   }
 ];
 
@@ -105,14 +149,24 @@ export const getElections = () => elections;
 export const addElection = (election) => { elections.push(election); };
 export const createElection = (election, creatorEmail) => {
   const newId = elections.length ? Math.max(...elections.map(e => e.id)) + 1 : 1;
-  elections.push({
+  
+  const creatorUser = { email: creatorEmail, name: 'Creator' };
+  const eligibleVoters = election.eligibleVoters || [];
+  
+  if (!eligibleVoters.some(v => v.email === creatorEmail)) {
+    eligibleVoters.push(creatorUser);
+  }
+  
+  const newElection = {
     ...election,
     id: newId,
-    creator: creatorEmail,
-    eligibleVoters: election.eligibleVoters || [], // <-- default to empty array
-    hasVoted: false, // ensure hasVoted exists
-    voters: election.voters || 0, // optional, default to 0
-  });
+    creator: election.creator || creatorEmail,
+    eligibleVoters: eligibleVoters,
+    hasVoted: false,
+    voters: election.voters || 0,
+  };
+  elections.push(newElection);
+  return newElection;
 };
 
 export const getStats = () => {

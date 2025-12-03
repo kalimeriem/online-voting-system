@@ -3,21 +3,24 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
+import StatsGrid from '../../components/StatsGrid/StatsGrid';
 import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
 import './AdminElectionPanel.css';
-import '../../components/StatsGrid/StatsGrid.css'
+import '../../components/StatsGrid/StatsGrid.css';
+
+
 const AdminElectionPanel = ({ election, user }) => {
 			const [showLiveResults, setShowLiveResults] = useState(false);
 			const [allowVoterAddition, setAllowVoterAddition] = useState(true);
 		
-		const departments = require('../../repositories/DepartmentRepository').getDepartments();
+		const departments = require('../../api/repositories/DepartmentRepository').getDepartments();
 		const department = departments.find(d => d.name === election.department);
 		const departmentMembersLength = department ? department.members.length : 0;
 		const eligibleVotersLength = election.eligibleVoters ? election.eligibleVoters.length : 0;
 		const additionalVoters = eligibleVotersLength - departmentMembersLength;
 	const [activeTab, setActiveTab] = useState('overview');
-	const [candidates, setCandidates] = useState(election.candidates);
+	const [candidates, setCandidates] = useState(election.candidates || []);
 
 	const handleEditCandidate = (idx) => {
 		alert(`Edit candidate: ${candidates[idx].name}`);
@@ -30,7 +33,7 @@ const AdminElectionPanel = ({ election, user }) => {
 		}
 	};
 	const navigate = useNavigate();
-	const totalVotes = election.candidates.reduce((sum, c) => sum + (c.votes || 0), 0);
+	const totalVotes = (election.candidates || []).reduce((sum, c) => sum + (c.votes || 0), 0);
 	const eligibleVoters = election.eligibleVoters ? election.eligibleVoters.length : 0;
 	const durationDays = (() => {
 		if (!election.startDate || !election.endDate) return '';
@@ -40,12 +43,12 @@ const AdminElectionPanel = ({ election, user }) => {
 		return `${diff} days`;
 	})();
 
-	const statItems = [
-		{ label: 'Eligible Voters', value: eligibleVoters, icon: '👥', color: 'blue' },
-		{ label: 'Total Votes', value: totalVotes, icon: '🗳️', color: 'green' },
-		{ label: 'Duration', value: durationDays, icon: '⏰', color: 'orange' },
-		{ label: 'Status', value: election.status, icon: '✅', color: 'purple' }
-	];
+	const statsForGrid = {
+		departments: eligibleVoters,
+		activeElections: totalVotes,
+		upcoming: durationDays,
+		completed: election.status
+	};
 
 	return (
 		<div className="dashboard-wrapper">
@@ -104,21 +107,11 @@ const AdminElectionPanel = ({ election, user }) => {
 										</span>
 									</button>
 								</div>
-								<div className="stats-grid">
-									{statItems.map((item, idx) => (
-										<div key={idx} className="stat-card">
-											<div className="stat-header">
-												<span>{item.label}</span>
-												<span className={`stat-icon ${item.color}`}>{item.icon}</span>
-											</div>
-											<div className="stat-number">{item.value}</div>
-										</div>
-									))}
-								</div>
+								<StatsGrid stats={statsForGrid} />
 								<div className="admin-election-results">
 									<div className="admin-election-results-title">Current Results</div>
 									<div className="admin-election-results-desc">Live vote counts for all candidates</div>
-									{election.candidates.map((candidate, idx) => {
+									{(election.candidates || []).map((candidate, idx) => {
 										const percent = totalVotes ? ((candidate.votes || 0) / totalVotes * 100).toFixed(1) : 0;
 										return (
 											<div key={idx} className="admin-election-candidate-result">
