@@ -10,6 +10,7 @@ import { authRepository } from "../api/repositories/authRepository";
 
 export default function Register() {
   const navigate = useNavigate();
+  
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -214,9 +215,22 @@ export default function Register() {
                 </p>
               )}
 
-              <button className="auth-btn" type="submit">
+              {/* <button className="auth-btn" type="submit">
                 Create Account
-              </button>
+              </button> */}
+              <button
+  className="auth-btn"
+  type="submit"
+  onClick={() => {
+    // Force navigation to dashboard
+    localStorage.setItem("token", "demo-token");
+    localStorage.setItem("user", JSON.stringify({ name: fullName, email }));
+
+    navigate("/dashboard");
+  }}
+>
+  Create Account
+</button>
 
               <p className="toggle-text">
                 Already have an account? <Link className="toggle-link" to="/login">Sign in</Link>

@@ -1,42 +1,38 @@
 import React from 'react';
 import './DepartmentSection.css';
 
-const DepartmentSection = () => {
-  const teams = [
-    { name: 'ENSIA School', description: 'Main school department', members: 150 },
-     { name: 'Teachers', description: 'Teaching staff department', members: 25, restricted: true },
-     { name: 'Students', description: 'Student body', members: 100 },
-    { name: 'Staff', description: 'Administrative staff', members: 25, restricted: true }
-  ];
+const DepartmentSection = ({ departments, currentUserEmail }) => {
 
   return (
     <div className="team-sec">
- <div className="team-head">
-     <h2>Departments</h2>
+      <div className="team-head">
+        <h2>Departments</h2>
         <button className="btn">View all →</button>
       </div>
 
       <div className="team-g">
-        {teams.map((team, idx) => (
-
-
-
-          <div key={idx} className="card">
-                      <div className="title">
-              <h4>{team.name}</h4>
-              {team.restricted && <span className="badge">Private</span>}
+        {departments.map((dept, idx) => {
+          const isMember = dept.members.some(m => m.email === currentUserEmail);
+          return (
+            <div key={idx} className="card">
+              <div className="title">
+                <h4>{dept.name}</h4>
+                {dept.private && <span className="badge">Private</span>}
+                {isMember && <span className="badge member">You belong</span>}
+              </div>
+              <p className="description">{dept.type}</p>
+              <div className="members">
+                <span className="icon">👥</span>
+                <span>{dept.members.length} members</span>
+              </div>
             </div>
-            <p className="description">{team.description}</p>
-            <div className="members">
-                      <span className="icon">👥</span>
-              <span>{team.members} members</span>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
 };
 
 export default DepartmentSection;
+
 

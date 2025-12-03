@@ -1,0 +1,146 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px; /* ensures modal doesn't overflow screen */
+  box-sizing: border-box;
+}
+
+.modal-content {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.12);
+  padding: 24px 24px;
+  width: 100%;
+  max-width: 600px; /* increased from 380px for full PC view */
+  overflow-y: auto; /* allows scroll if content is taller than viewport */
+  max-height: 90vh; /* prevents modal from exceeding viewport height */
+}
+
+.modal-content h2 {
+  margin-bottom: 18px;
+  font-size: 22px;
+  font-weight: 600;
+}
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.modal-content input,
+.modal-content textarea,
+.modal-content select {
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #f6f7fa;
+}
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.modal-actions button[type="submit"] {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.modal-actions button[type="button"] {
+  background: #f6f7fa;
+  color: #222;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.voter-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.voter-tabs button {
+  flex: 1;
+  background: #f6f7fa;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: 8px 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: #222;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.voter-tabs button.active {
+  background: #e5e7eb;
+  color: #2563eb;
+}
+.voter-manual {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.voter-manual input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  font-size: 15px;
+  background: #f6f7fa;
+}
+.voter-manual button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 18px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 4px;
+}
+.voter-list {
+  background: #f6f7fa;
+  border-radius: 8px;
+  padding: 16px;
+  min-height: 80px;
+  margin-top: 8px;
+  text-align: center;
+}
+.no-voters {
+  color: #b0b7c3;
+  font-size: 15px;
+}
+.voter-icon {
+  font-size: 32px;
+  display: block;
+  margin-bottom: 8px;
+}
+.voter-hint {
+  color: #b0b7c3;
+  font-size: 13px;
+}
+.voter-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: center;
+  background: #f6f7fa;
+  border-radius: 8px;
+  padding: 16px;
+  margin-top: 8px;
+}
+.voter-upload input[type="file"] {
+  margin-bottom: 8px;
+}
