@@ -215,22 +215,9 @@ export default function Register() {
                 </p>
               )}
 
-              {/* <button className="auth-btn" type="submit">
+              <button className="auth-btn" type="submit">
                 Create Account
-              </button> */}
-              <button
-  className="auth-btn"
-  type="submit"
-  onClick={() => {
-    // Force navigation to dashboard
-    localStorage.setItem("token", "demo-token");
-    localStorage.setItem("user", JSON.stringify({ name: fullName, email }));
-
-    navigate("/dashboard");
-  }}
->
-  Create Account
-</button>
+              </button>
 
               <p className="toggle-text">
                 Already have an account? <Link className="toggle-link" to="/login">Sign in</Link>

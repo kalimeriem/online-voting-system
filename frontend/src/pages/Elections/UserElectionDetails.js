@@ -8,16 +8,32 @@ import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
 import './AdminElectionPanel.css';
 import '../../components/StatsGrid/StatsGrid.css';
+import { castVoteAPI } from '../../api/repositories/ElectionRepository';
 
 const UserElectionDetails = ({ election, user }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [hasVoted, setHasVoted] = useState(election.hasVoted || false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
-  const handleVoteSubmit = () => {
+  const handleVoteSubmit = async () => {
     if (selectedCandidate !== null && !hasVoted) {
-      setHasVoted(true);
-      alert(`Vote cast for ${election.candidates[selectedCandidate].name}`);
+      setIsSubmitting(true);
+      try {
+        const candidate = election.candidates[selectedCandidate];
+        const result = await castVoteAPI(election.id, candidate.id);
+        if (result) {
+          setHasVoted(true);
+          alert(`Vote cast for ${candidate.name}`);
+        } else {
+          alert('Failed to cast vote. Please try again.');
+        }
+      } catch (err) {
+        console.error("Vote submission error:", err);
+        alert('Error casting vote. Please try again.');
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -105,11 +121,11 @@ const UserElectionDetails = ({ election, user }) => {
                 </div>
                 <button
                   className="candidates-add-btn"
-                  disabled={selectedCandidate === null}
+                  disabled={selectedCandidate === null || isSubmitting}
                   onClick={handleVoteSubmit}
-                  style={{ backgroundColor: selectedCandidate === null ? '#ccc' : '#111827' }}
+                  style={{ backgroundColor: selectedCandidate === null || isSubmitting ? '#ccc' : '#111827' }}
                 >
-                  Submit Vote
+                  {isSubmitting ? 'Submitting...' : 'Submit Vote'}
                 </button>
               </div>
             )}

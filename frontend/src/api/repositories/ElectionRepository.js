@@ -1,3 +1,5 @@
+import api from "../httpClient";
+
 const elections = [
   {
     id: 1,
@@ -7,7 +9,8 @@ const elections = [
       eligibleVoters: [
         ...require('../repositories/DepartmentRepository').getDepartmentMembers(3),
         { email: 'custom1@example.com', name: 'Custom Voter 1' },
-        { email: 'custom2@example.com', name: 'Custom Voter 2' }
+        { email: 'custom2@example.com', name: 'Custom Voter 2' },
+        { email: 'test@gmail.com', name: 'Test User' },
       ],
       voters: 41,
       department: 'Students',
@@ -174,4 +177,45 @@ export const getStats = () => {
   const upcoming = elections.filter(e => e.status.toLowerCase() === 'upcoming').length;
   const completed = elections.filter(e => e.status.toLowerCase() === 'completed').length;
   return { activeElections, upcoming, completed };
+};
+
+export const getElectionsFromAPI = async () => {
+  try {
+    const res = await api.get("/elections");
+    return res.data.data || [];
+  } catch (err) {
+    console.error("Failed to fetch elections from API:", err);
+    return getElections();
+  }
+};
+
+export const createElectionAPI = async (electionData) => {
+  try {
+    const res = await api.post("/elections", {
+      title: electionData.title,
+      description: electionData.description,
+      startDate: electionData.startDate,
+      endDate: electionData.endDate,
+      departmentId: electionData.department ? parseInt(electionData.department) : null,
+      candidateNames: electionData.candidates ? electionData.candidates.map(c => c.name) : [],
+      participantIds: electionData.customVoters ? [] : undefined
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Failed to create election:", err);
+    return null;
+  }
+};
+
+export const castVoteAPI = async (electionId, candidateId) => {
+  try {
+    const res = await api.post(`/votes`, {
+      electionId: parseInt(electionId),
+      candidateId: parseInt(candidateId)
+    });
+    return res.data.data;
+  } catch (err) {
+    console.error("Failed to cast vote:", err);
+    return null;
+  }
 };

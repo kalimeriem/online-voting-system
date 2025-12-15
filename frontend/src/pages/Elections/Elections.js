@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
 import StatsGrid from '../../components/StatsGrid/StatsGrid';
@@ -7,7 +7,7 @@ import CreateElectionModal from '../../modals/CreateElectionModal';
 import { useNavigate } from 'react-router-dom';
 
 import './Elections.css';
-import { getElections, getStats, createElection } from '../../api/repositories/ElectionRepository';
+import { getElections, getStats, createElection, getElectionsFromAPI, createElectionAPI } from '../../api/repositories/ElectionRepository';
 
 const Elections = () => {
   const [user] = useState(JSON.parse(localStorage.getItem('user')) || {
@@ -16,15 +16,65 @@ const Elections = () => {
   });
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
+  const [elections, setElections] = useState([]);
+  const [stats, setStats] = useState(getStats());
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchElections = async () => {
+      setLoading(true);
+      try {
+        const allElections = await getElectionsFromAPI();
+        
+        const filteredElections = allElections.filter(election => {
+          const isAdmin = election.creatorId === user.id || election.creator === user.email;
+          const isEligible = election.participants?.some(p => p.userId === user.id) || 
+                           election.eligibleVoters?.some(v => v.email === user.email);
+          return isAdmin || isEligible;
+        });
+        
+        setElections(filteredElections);
+      } catch (err) {
+        console.error("Failed to load elections:", err);
+        const mockElections = getElections();
+        const filtered = mockElections.filter(election => {
+          const isAdmin = election.creator === user.email;
+          const isEligible = election.eligibleVoters?.some(v => v.email === user.email);
+          return isAdmin || isEligible;
+        });
+        setElections(filtered);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchElections();
+  }, [user]);
+
   const handleCastVote = (electionId) => {
     navigate(`/elections/${electionId}`);
   };
-  const [elections, setElections] = useState(getElections());
-  const [stats, setStats] = useState(getStats());
-  const handleCreateElection = (newElection) => {
-    createElection(newElection, user.email);
-    setElections(getElections());
-    setStats(getStats());
+
+  const handleCreateElection = async (newElection) => {
+    try {
+      const createdElection = await createElectionAPI(newElection);
+      if (createdElection) {
+        // Refresh elections list
+        const allElections = await getElectionsFromAPI();
+        const filteredElections = allElections.filter(election => {
+          const isAdmin = election.creatorId === user.id || election.creator === user.email;
+          const isEligible = election.participants?.some(p => p.userId === user.id) || 
+                           election.eligibleVoters?.some(v => v.email === user.email);
+          return isAdmin || isEligible;
+        });
+        setElections(filteredElections);
+      }
+    } catch (err) {
+      console.error("Failed to create election:", err);
+      // Fallback to mock creation
+      createElection(newElection, user.email);
+      setElections(getElections());
+    }
   };
   const [activeTab, setActiveTab] = useState('active');
 
@@ -81,13 +131,23 @@ const Elections = () => {
               </button>
             </div>
             <div className="elections-grid">
-              {elections.filter(e => e.status.toLowerCase() === activeTab).map(election => (
-                <ElectionCard
-                  key={election.id}
-                  election={election}
-                  onCastVote={handleCastVote}
-                />
-              ))}
+              {loading ? (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+                  <p>Loading elections...</p>
+                </div>
+              ) : elections.filter(e => e.status.toLowerCase() === activeTab).length === 0 ? (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
+                  <p>No {activeTab} elections available</p>
+                </div>
+              ) : (
+                elections.filter(e => e.status.toLowerCase() === activeTab).map(election => (
+                  <ElectionCard
+                    key={election.id}
+                    election={election}
+                    onCastVote={handleCastVote}
+                  />
+                ))
+              )}
             </div>
           </div>
         </div>
