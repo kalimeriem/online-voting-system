@@ -38,7 +38,7 @@ const ElectionCard = ({ election, onCastVote }) => {
         disabled={!canVote && !isCreator}
       >
         {isCreator ? 'View Admin Panel' : 
-         election.hasVoted ? 'Voted' : 
+         election.hasVoted ? 'Already Voted' : 
          !isEligible ? 'Not Eligible' : 'Cast Your Vote'}
       </button>
     </div>

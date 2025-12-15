@@ -7,7 +7,7 @@ import CreateElectionModal from '../../modals/CreateElectionModal';
 import { useNavigate } from 'react-router-dom';
 
 import './Elections.css';
-import { getElections, getStats, createElection, getElectionsFromAPI, createElectionAPI } from '../../api/repositories/ElectionRepository';
+import { getElections, getStats, createElection, getElectionsFromAPI, createElectionAPI, getUserVote } from '../../api/repositories/ElectionRepository';
 
 const Elections = () => {
   const [user] = useState(JSON.parse(localStorage.getItem('user')) || {
@@ -33,12 +33,25 @@ const Elections = () => {
           return isAdmin || isEligible;
         });
         
-        setElections(filteredElections);
+        // Check if user has voted in each election
+        const electionsWithVoteStatus = await Promise.all(
+          filteredElections.map(async (election) => {
+            try {
+              const userVote = await getUserVote(election.id);
+              return { ...election, hasVoted: userVote ? true : false };
+            } catch (err) {
+              // If error fetching vote status, assume not voted
+              return { ...election, hasVoted: false };
+            }
+          })
+        );
+        
+        setElections(electionsWithVoteStatus);
         
         // Calculate stats from filtered elections
-        const activeCount = filteredElections.filter(e => e.status === 'ACTIVE').length;
-        const upcomingCount = filteredElections.filter(e => e.status === 'UPCOMING').length;
-        const completedCount = filteredElections.filter(e => e.status === 'ENDED').length;
+        const activeCount = electionsWithVoteStatus.filter(e => e.status === 'ACTIVE').length;
+        const upcomingCount = electionsWithVoteStatus.filter(e => e.status === 'UPCOMING').length;
+        const completedCount = electionsWithVoteStatus.filter(e => e.status === 'ENDED').length;
         setStats({ activeElections: activeCount, upcoming: upcomingCount, completed: completedCount });
       } catch (err) {
         console.error("Failed to load elections:", err);
