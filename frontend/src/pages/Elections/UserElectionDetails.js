@@ -30,7 +30,13 @@ const UserElectionDetails = ({ election, user }) => {
         }
       } catch (err) {
         console.error("Vote submission error:", err);
-        alert(`Error casting vote: ${err.message || 'Please try again.'}`);
+        // If user already voted, mark as voted and show appropriate message
+        if (err.message && err.message.includes("already voted")) {
+          setHasVoted(true);
+          alert('You have already voted in this election.');
+        } else {
+          alert(`Error casting vote: ${err.message || 'Please try again.'}`);
+        }
       } finally {
         setIsSubmitting(false);
       }
