@@ -1,5 +1,6 @@
 import prisma from "../../db/prisma";
 import type { Vote, Election, Candidate } from "@prisma/client";
+import { ApiError } from "../../utils/apiError";
 
 interface CastVoteInput {
   electionId: number;
@@ -10,11 +11,16 @@ interface CastVoteInput {
 export const castVote = async ({ electionId, candidateId, userId }: CastVoteInput): Promise<Vote> => {
   // Ensure election exists and is active
   const election = await prisma.election.findUnique({ where: { id: electionId } });
-  if (!election) throw new Error("Election not found");
+  if (!election) throw new ApiError("Election not found", 404);
+
+  // Validate candidate exists and belongs to this election
+  const candidate = await prisma.candidate.findUnique({ where: { id: candidateId } });
+  if (!candidate) throw new ApiError("Candidate not found", 404);
+  if (candidate.electionId !== electionId) throw new ApiError("Candidate does not belong to this election", 400);
 
   const now = new Date();
   if (now < election.startDate || now > election.endDate) {
-    throw new Error("Election is not active");
+    throw new ApiError("Election is not active", 400);
   }
 
   // Ensure user is a participant or the creator
@@ -22,13 +28,13 @@ export const castVote = async ({ electionId, candidateId, userId }: CastVoteInpu
     where: { electionId_userId: { electionId, userId } }
   });
   if (!isParticipant && election.creatorId !== userId) {
-    throw new Error("User is not a participant in this election");
+    throw new ApiError("User is not a participant in this election", 403);
   }
 
   // Create vote in a transaction to handle concurrency
   return await prisma.$transaction(async (tx) => {
     const existingVote = await tx.vote.findUnique({ where: { electionId_userId: { electionId, userId } } });
-    if (existingVote) throw new Error("User has already voted in this election.");
+    if (existingVote) throw new ApiError("User has already voted in this election.", 400);
 
     const vote = await tx.vote.create({ data: { electionId, candidateId, userId } });
     return vote;

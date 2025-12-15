@@ -30,7 +30,7 @@ const UserElectionDetails = ({ election, user }) => {
         }
       } catch (err) {
         console.error("Vote submission error:", err);
-        alert('Error casting vote. Please try again.');
+        alert(`Error casting vote: ${err.message || 'Please try again.'}`);
       } finally {
         setIsSubmitting(false);
       }

@@ -7,6 +7,9 @@ interface AuthRequest extends Request {
 }
 
 export const castVote = catchAsync(async (req: AuthRequest, res: Response) => {
+  console.log("Vote request body:", req.body);
+  console.log("User ID from auth:", req.user!.userId);
+  
   const vote = await voteService.castVote({
     electionId: req.body.electionId,
     candidateId: req.body.candidateId,

@@ -68,6 +68,7 @@ export const createElectionAPI = async (electionData) => {
 
 export const castVoteAPI = async (electionId, candidateId) => {
   try {
+    console.log("Casting vote with:", { electionId: parseInt(electionId), candidateId: parseInt(candidateId) });
     const res = await api.post(`/votes`, {
       electionId: parseInt(electionId),
       candidateId: parseInt(candidateId)
@@ -75,6 +76,10 @@ export const castVoteAPI = async (electionId, candidateId) => {
     return res.data.data;
   } catch (err) {
     console.error("Failed to cast vote:", err);
-    return null;
+    if (err.response?.data?.message) {
+      console.error("Server error message:", err.response.data.message);
+      throw new Error(err.response.data.message);
+    }
+    throw err;
   }
 };
