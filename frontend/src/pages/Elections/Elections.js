@@ -17,7 +17,7 @@ const Elections = () => {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const navigate = useNavigate();
   const [elections, setElections] = useState([]);
-  const [stats, setStats] = useState(getStats());
+  const [stats, setStats] = useState({ activeElections: 0, upcoming: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -34,6 +34,12 @@ const Elections = () => {
         });
         
         setElections(filteredElections);
+        
+        // Calculate stats from filtered elections
+        const activeCount = filteredElections.filter(e => e.status === 'ACTIVE').length;
+        const upcomingCount = filteredElections.filter(e => e.status === 'UPCOMING').length;
+        const completedCount = filteredElections.filter(e => e.status === 'ENDED').length;
+        setStats({ activeElections: activeCount, upcoming: upcomingCount, completed: completedCount });
       } catch (err) {
         console.error("Failed to load elections:", err);
         const mockElections = getElections();
@@ -43,6 +49,7 @@ const Elections = () => {
           return isAdmin || isEligible;
         });
         setElections(filtered);
+        setStats({ activeElections: 0, upcoming: 0, completed: 0 });
       } finally {
         setLoading(false);
       }

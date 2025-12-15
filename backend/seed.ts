@@ -153,6 +153,7 @@ async function main() {
         create: [
           { userId: users[1].id },
           { userId: users[2].id },
+          { userId: users[0].id }, // Add Alice to vote in this election
           { userId: users[3].id },
           { userId: users[4].id },
           { userId: users[5].id },
