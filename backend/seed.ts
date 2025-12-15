@@ -139,7 +139,7 @@ async function main() {
     data: {
       title: "Class Representative 2024",
       description: "Election for class representative",
-      startDate: new Date("2025-12-16"),
+      startDate: new Date("2025-12-15"),
       endDate: new Date("2025-12-22"),
       status: "ACTIVE",
       creatorId: users[1].id, // Bob is creator
@@ -213,12 +213,12 @@ async function main() {
 
   // Create election 4 (completed)
   const election4 = await prisma.election.create({
-    data: {
+    data:  {
       title: "Cultural Secretary 2024",
       description: "Election for cultural secretary position",
-      startDate: new Date("2025-12-01"),
-      endDate: new Date("2025-12-10"),
-      status: "ENDED",
+      startDate: new Date("2025-12-15"),
+      endDate: new Date("2025-12-25"),
+      status: "ACTIVE",
       creatorId: users[3].id, // David is creator
       candidates: {
         create: [
