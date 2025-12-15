@@ -113,9 +113,10 @@ const ElectionResults = ({ election, user }) => {
                   </div>
                 ) : (
                   results && results.length > 0 ? (
-                    results.map((candidate, idx) => {
-                      const percentage = getCandidatePercentage(candidate.votes);
-                      const votes = candidate.votes || 0;
+                    results.map((result, idx) => {
+                      const candidate = result.candidate;
+                      const percentage = getCandidatePercentage(result.votes);
+                      const votes = result.votes || 0;
                       return (
                         <div
                           key={idx}
@@ -130,9 +131,9 @@ const ElectionResults = ({ election, user }) => {
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', alignItems: 'center' }}>
                             <div>
                               <div style={{ fontWeight: 'bold', fontSize: '16px', marginBottom: '4px' }}>
-                                {candidate.name}
+                                {candidate?.name || 'Unknown Candidate'}
                               </div>
-                              {candidate.description && (
+                              {candidate?.description && (
                                 <div style={{ fontSize: '13px', color: '#666', marginBottom: '8px' }}>
                                   {candidate.description}
                                 </div>

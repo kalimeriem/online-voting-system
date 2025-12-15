@@ -6,7 +6,7 @@ import ElectionCard from '../../components/ElectionCard/ElectionCard';
 import DepartmentSection from '../../components/DepartmentSection/DepartmentSection';
 import RecentActivity from '../../components/RecentActivity/RecentActivity';
 import { getDepartments } from '../../api/repositories/DepartmentRepository';
-import { getElectionsFromAPI, getStats } from '../../api/repositories/ElectionRepository';
+import { getElectionsFromAPI, getStats, getUserVote } from '../../api/repositories/ElectionRepository';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -43,11 +43,25 @@ const Dashboard = () => {
         const stats = getStats();
         const allElections = await getElectionsFromAPI();
         
-        // Compute proper statuses
-        const electionsWithStatus = allElections.map(e => ({
-          ...e,
-          status: computeStatus(e)
-        }));
+        // Compute proper statuses and check vote status
+        const electionsWithStatus = await Promise.all(
+          allElections.map(async (e) => {
+            try {
+              const userVote = await getUserVote(e.id);
+              return {
+                ...e,
+                status: computeStatus(e),
+                hasVoted: userVote ? true : false
+              };
+            } catch (err) {
+              return {
+                ...e,
+                status: computeStatus(e),
+                hasVoted: false
+              };
+            }
+          })
+        );
         
         setDepartments(deps);
         setElections(electionsWithStatus);
