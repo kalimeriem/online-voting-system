@@ -8,7 +8,8 @@ const ElectionCard = ({ election, onCastVote }) => {
   const isEligible = Array.isArray(election.eligibleVoters)
   ? election.eligibleVoters.some(v => v.email === currentUserEmail)
   : false;
-  const canVote = isEligible && !election.hasVoted && !isCreator;  return (
+
+  return (
     <div className="card">
       <div className="header">
         <h3>{election.title}</h3>
