@@ -6,6 +6,7 @@ const router = Router();
 
 
 router.post("/", protect, electionController.createElection);
+router.get("/all", protect, electionController.getAllElections);
 router.get("/", protect, electionController.getUserElections);
 router.get("/:id/participants", protect, electionController.getParticipants);
 

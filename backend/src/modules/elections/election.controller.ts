@@ -27,6 +27,23 @@ export const getUserElections = catchAsync(async (req: AuthRequest, res: Respons
   res.json({ success: true, data: elections });
 });
 
+export const getAllElections = catchAsync(async (req: AuthRequest, res: Response) => {
+  const elections = await electionService.getAllElections();
+  
+  // Transform to match frontend expectations
+  const transformedElections = elections.map((election: any) => ({
+    ...election,
+    creator: election.creator.email, // Extract creator email
+    eligibleVoters: election.participants.map((p: any) => ({
+      email: p.user.email,
+      name: p.user.name,
+      userId: p.user.id
+    }))
+  }));
+  
+  res.json({ success: true, data: transformedElections });
+});
+
 export const getParticipants = catchAsync(async (req: AuthRequest, res: Response) => {
   const electionId = Number(req.params.id);
   if (Number.isNaN(electionId)) throw new Error("Invalid election id");

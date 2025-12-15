@@ -36,7 +36,7 @@ export const getStats = () => {
 
 export const getElectionsFromAPI = async () => {
   try {
-    const res = await api.get("/elections");
+    const res = await api.get("/elections/all");
     return res.data.data || [];
   } catch (err) {
     console.error("Failed to fetch elections from API:", err);
