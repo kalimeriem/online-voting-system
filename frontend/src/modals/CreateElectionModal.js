@@ -21,10 +21,29 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    
+    // Validation
     if (candidates.length === 0) {
       alert('Please add at least one candidate');
       return;
     }
+    
+    const now = new Date();
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    // Check if start date is in the future
+    if (start <= now) {
+      alert('Start date must be in the future');
+      return;
+    }
+    
+    // Check if end date is after start date
+    if (end <= start) {
+      alert('End date must be after start date');
+      return;
+    }
+    
     onCreate({
       title,
       description,
@@ -73,6 +92,13 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
     setCandidates(candidates.filter((_, i) => i !== index));
   };
 
+  // Get tomorrow's date in YYYY-MM-DD format for min date
+  const getTomorrowDate = () => {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    return tomorrow.toISOString().split('T')[0];
+  };
+
   if (!open) return null;
 
   return (
@@ -82,8 +108,8 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
         <form onSubmit={handleSubmit}>
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Election Title" required />
           <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Description" required />
-          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} required />
-          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} required />
+          <input type="date" value={startDate} onChange={e => setStartDate(e.target.value)} min={getTomorrowDate()} required />
+          <input type="date" value={endDate} onChange={e => setEndDate(e.target.value)} min={startDate} required />
           <select value={department} onChange={e => setDepartment(e.target.value)}>
             <option value="">Select Department (Optional)</option>
             {departments.map(dept => (
