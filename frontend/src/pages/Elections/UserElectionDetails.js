@@ -8,20 +8,18 @@ import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
 import './AdminElectionPanel.css';
 import '../../components/StatsGrid/StatsGrid.css';
-import { castVoteAPI, getElectionResults, getUserVote } from '../../api/repositories/ElectionRepository';
+import { castVoteAPI, getUserVote } from '../../api/repositories/ElectionRepository';
 
 const UserElectionDetails = ({ election, user }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [hasVoted, setHasVoted] = useState(election.hasVoted || false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [userVoteCandidate, setUserVoteCandidate] = useState(null);
-  const [loadingResults, setLoadingResults] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch election results to determine if user has already voted
+  // Fetch user's vote to determine if user has already voted
   useEffect(() => {
-    const fetchResults = async () => {
-      setLoadingResults(true);
+    const fetchUserVote = async () => {
       try {
         const userVote = await getUserVote(election.id);
         if (userVote?.candidate) {
@@ -30,12 +28,10 @@ const UserElectionDetails = ({ election, user }) => {
         }
       } catch (err) {
         console.error("Failed to fetch user vote:", err);
-      } finally {
-        setLoadingResults(false);
       }
     };
     
-    fetchResults();
+    fetchUserVote();
   }, [election.id]);
 
   const handleVoteSubmit = async () => {
