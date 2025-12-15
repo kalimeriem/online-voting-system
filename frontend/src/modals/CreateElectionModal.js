@@ -28,13 +28,20 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
       return;
     }
     
+    // Normalize to UTC midnight to avoid timezone issues
     const now = new Date();
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    now.setHours(0, 0, 0, 0);
     
-    // Check if start date is in the future
-    if (start <= now) {
-      alert('Start date must be in the future');
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T00:00:00');
+    
+    // Check if start date is in the future (tomorrow or later)
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(0, 0, 0, 0);
+    
+    if (start < tomorrow) {
+      alert('Start date must be tomorrow or later');
       return;
     }
     
@@ -97,6 +104,12 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     return tomorrow.toISOString().split('T')[0];
+  };
+
+  // Get today's date in YYYY-MM-DD format (for reference)
+  const getTodayDate = () => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
   };
 
   if (!open) return null;

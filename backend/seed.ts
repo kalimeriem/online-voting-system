@@ -257,10 +257,58 @@ async function main() {
 
   console.log(`✓ Created ${election4Votes.count} votes for election 4`);
 
+  // Create election 5 (another completed election for demo)
+  const election5 = await prisma.election.create({
+    data: {
+      title: "Academic Affairs Lead 2025",
+      description: "Election for academic affairs lead position",
+      startDate: new Date("2025-12-05"),
+      endDate: new Date("2025-12-12"),
+      status: "ENDED",
+      creatorId: users[4].id, // Eve is creator
+      candidates: {
+        create: [
+          { name: "Robert Academic", description: "Improve curriculum" },
+          { name: "Patricia Academic", description: "Student support programs" },
+          { name: "Richard Academic", description: "Academic excellence initiatives" },
+        ],
+      },
+      participants: {
+        create: [
+          { userId: users[0].id },
+          { userId: users[1].id },
+          { userId: users[2].id },
+          { userId: users[4].id },
+          { userId: users[5].id },
+          { userId: users[6].id },
+          { userId: users[7].id },
+        ],
+      },
+    },
+    include: { candidates: true, participants: true },
+  });
+
+  console.log("✓ Created election 5 (ended/completed)");
+
+  // Create votes for election 5
+  const election5Votes = await prisma.vote.createMany({
+    data: [
+      { electionId: election5.id, userId: users[0].id, candidateId: election5.candidates[0].id },
+      { electionId: election5.id, userId: users[1].id, candidateId: election5.candidates[1].id },
+      { electionId: election5.id, userId: users[2].id, candidateId: election5.candidates[0].id },
+      { electionId: election5.id, userId: users[4].id, candidateId: election5.candidates[2].id },
+      { electionId: election5.id, userId: users[5].id, candidateId: election5.candidates[1].id },
+      { electionId: election5.id, userId: users[6].id, candidateId: election5.candidates[2].id },
+      { electionId: election5.id, userId: users[7].id, candidateId: election5.candidates[0].id },
+    ],
+  });
+
+  console.log(`✓ Created ${election5Votes.count} votes for election 5`);
+
   console.log("\n✅ Database seeding complete!");
   console.log(`   - Users: ${users.length}`);
-  console.log(`   - Elections: 4`);
-  console.log(`   - Total votes: ${election1Votes.count + election2Votes.count + election4Votes.count}`);
+  console.log(`   - Elections: 5`);
+  console.log(`   - Total votes: ${election1Votes.count + election2Votes.count + election4Votes.count + election5Votes.count}`);
 }
 
 main()

@@ -110,6 +110,9 @@ export const getAllElections = async (): Promise<any[]> => {
       },
       creator: {
         select: { id: true, email: true, name: true }
+      },
+      _count: {
+        select: { votes: true }
       }
     }
   });

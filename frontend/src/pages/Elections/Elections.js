@@ -23,8 +23,15 @@ const Elections = () => {
   // Helper function to compute election status
   const computeStatus = (election) => {
     const now = new Date();
+    now.setHours(0, 0, 0, 0);
+    
+    // Parse dates - handle both ISO string and date object formats
     const startDate = new Date(election.startDate);
     const endDate = new Date(election.endDate);
+    
+    // Normalize to midnight UTC for consistent comparison
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
 
     if (now < startDate) return 'UPCOMING';
     if (now > endDate) return 'ENDED';
@@ -176,12 +183,18 @@ const Elections = () => {
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
                   <p>Loading elections...</p>
                 </div>
-              ) : elections.filter(e => e.status.toLowerCase() === activeTab).length === 0 ? (
+              ) : elections.filter(e => {
+                if (activeTab === 'completed') return e.status === 'ENDED';
+                return e.status.toLowerCase() === activeTab;
+              }).length === 0 ? (
                 <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '40px' }}>
                   <p>No {activeTab} elections available</p>
                 </div>
               ) : (
-                elections.filter(e => e.status.toLowerCase() === activeTab).map(election => (
+                elections.filter(e => {
+                  if (activeTab === 'completed') return e.status === 'ENDED';
+                  return e.status.toLowerCase() === activeTab;
+                }).map(election => (
                   <ElectionCard
                     key={election.id}
                     election={election}

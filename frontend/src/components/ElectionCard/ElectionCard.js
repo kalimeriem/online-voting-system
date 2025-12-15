@@ -9,6 +9,9 @@ const ElectionCard = ({ election, onCastVote }) => {
   ? election.eligibleVoters.some(v => v.email === currentUserEmail)
   : false;
 
+  // Count total votes for the election
+  const totalVotes = election._count?.votes || 0;
+
   return (
     <div className="card">
       <div className="header">
@@ -25,7 +28,7 @@ const ElectionCard = ({ election, onCastVote }) => {
         </div>
         <div className="detail">
           <span className="icon">📊</span>
-          <span>{election.voters} total cast</span>
+          <span>{totalVotes} total cast</span>
         </div>
         <div className="detail">
           <span className="icon">📅</span>
