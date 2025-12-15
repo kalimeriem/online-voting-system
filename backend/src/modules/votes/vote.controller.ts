@@ -22,3 +22,8 @@ export const getResults = catchAsync(async (req: AuthRequest, res: Response) => 
   const results = await voteService.getElectionResults(Number(req.params.electionId));
   res.json({ success: true, data: results });
 });
+
+export const getUserVote = catchAsync(async (req: AuthRequest, res: Response) => {
+  const vote = await voteService.getUserVote(Number(req.params.electionId), req.user!.userId);
+  res.json({ success: true, data: vote });
+});

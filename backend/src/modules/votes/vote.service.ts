@@ -63,3 +63,13 @@ export const getElectionResults = async (electionId: number): Promise<{ candidat
 
   return results;
 };
+
+export const getUserVote = async (electionId: number, userId: number): Promise<{ candidate: Candidate } | null> => {
+  const vote = await prisma.vote.findUnique({
+    where: { electionId_userId: { electionId, userId } },
+    include: { candidate: true }
+  });
+
+  if (!vote) return null;
+  return { candidate: vote.candidate };
+};

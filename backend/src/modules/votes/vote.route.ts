@@ -6,5 +6,6 @@ const router = Router();
 
 router.post("/", protect, voteController.castVote);
 router.get("/:electionId/results", protect, voteController.getResults);
+router.get("/:electionId/user-vote", protect, voteController.getUserVote);
 
 export default router;

@@ -83,3 +83,23 @@ export const castVoteAPI = async (electionId, candidateId) => {
     throw err;
   }
 };
+
+export const getElectionResults = async (electionId) => {
+  try {
+    const res = await api.get(`/votes/${electionId}/results`);
+    return res.data.data || [];
+  } catch (err) {
+    console.error("Failed to fetch election results:", err);
+    return [];
+  }
+};
+
+export const getUserVote = async (electionId) => {
+  try {
+    const res = await api.get(`/votes/${electionId}/user-vote`);
+    return res.data.data;
+  } catch (err) {
+    console.error("Failed to fetch user vote:", err);
+    return null;
+  }
+};

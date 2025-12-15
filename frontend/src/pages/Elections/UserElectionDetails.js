@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
@@ -8,13 +8,35 @@ import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
 import './AdminElectionPanel.css';
 import '../../components/StatsGrid/StatsGrid.css';
-import { castVoteAPI } from '../../api/repositories/ElectionRepository';
+import { castVoteAPI, getElectionResults, getUserVote } from '../../api/repositories/ElectionRepository';
 
 const UserElectionDetails = ({ election, user }) => {
   const [selectedCandidate, setSelectedCandidate] = useState(null);
   const [hasVoted, setHasVoted] = useState(election.hasVoted || false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [userVoteCandidate, setUserVoteCandidate] = useState(null);
+  const [loadingResults, setLoadingResults] = useState(false);
   const navigate = useNavigate();
+
+  // Fetch election results to determine if user has already voted
+  useEffect(() => {
+    const fetchResults = async () => {
+      setLoadingResults(true);
+      try {
+        const userVote = await getUserVote(election.id);
+        if (userVote?.candidate) {
+          setHasVoted(true);
+          setUserVoteCandidate(userVote.candidate);
+        }
+      } catch (err) {
+        console.error("Failed to fetch user vote:", err);
+      } finally {
+        setLoadingResults(false);
+      }
+    };
+    
+    fetchResults();
+  }, [election.id]);
 
   const handleVoteSubmit = async () => {
     if (selectedCandidate !== null && !hasVoted) {
@@ -24,6 +46,7 @@ const UserElectionDetails = ({ election, user }) => {
         const result = await castVoteAPI(election.id, candidate.id);
         if (result) {
           setHasVoted(true);
+          setUserVoteCandidate(candidate);
           alert(`Vote cast for ${candidate.name}`);
         } else {
           alert('Failed to cast vote. Please try again.');
@@ -33,6 +56,9 @@ const UserElectionDetails = ({ election, user }) => {
         // If user already voted, mark as voted and show appropriate message
         if (err.message && err.message.includes("already voted")) {
           setHasVoted(true);
+          // Try to find which candidate they voted for by checking the currently selected one
+          // Or we could add a backend endpoint to fetch the user's specific vote
+          // For now, we'll just show the message
           alert('You have already voted in this election.');
         } else {
           alert(`Error casting vote: ${err.message || 'Please try again.'}`);
@@ -103,8 +129,18 @@ const UserElectionDetails = ({ election, user }) => {
               </div>
             ) : hasVoted ? (
               <div className="admin-election-results">
-                <div className="admin-election-results-title">Vote Submitted</div>
-                <div className="admin-election-results-desc">Thank you for voting! Your vote has been recorded.</div>
+                <div className="admin-election-results-title">Already Voted in Election</div>
+                <div className="admin-election-results-desc">
+                  {userVoteCandidate 
+                    ? `You voted for: ${userVoteCandidate.name}` 
+                    : 'You have already voted in this election'}
+                </div>
+                {userVoteCandidate && (
+                  <div style={{ marginTop: '15px', padding: '15px', backgroundColor: '#f0f8ff', borderRadius: '8px', borderLeft: '4px solid #007bff' }}>
+                    <div style={{ fontWeight: 'bold', marginBottom: '5px' }}>{userVoteCandidate.name}</div>
+                    <div style={{ fontSize: '14px', color: '#666' }}>{userVoteCandidate.description}</div>
+                  </div>
+                )}
               </div>
             ) : (
               <div className="admin-election-results">
