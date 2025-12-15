@@ -118,21 +118,10 @@ export default function Login() {
                 </p>
               )}
 
-              {/* <button className="auth-btn" onClick={handleSubmit}>
+              <button className="auth-btn" onClick={handleSubmit}>
                 Sign In
-              </button> */}
-              <button
-  className="auth-btn"
+              </button> 
 
-  onClick={() => {
-    // Force navigation to dashboard
-   
-
-    navigate("/dashboard");
-  }}
->
-  Create Account
-</button>
 
               <p className="toggle-text">
                 Don't have an account?{" "}
