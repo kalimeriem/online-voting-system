@@ -7,7 +7,7 @@ import CreateElectionModal from '../../modals/CreateElectionModal';
 import { useNavigate } from 'react-router-dom';
 
 import './Elections.css';
-import { getElections, getStats, createElection, getElectionsFromAPI, createElectionAPI, getUserVote } from '../../api/repositories/ElectionRepository';
+import { getElections, createElection, getElectionsFromAPI, createElectionAPI, getUserVote } from '../../api/repositories/ElectionRepository';
 
 const Elections = () => {
   const [user] = useState(JSON.parse(localStorage.getItem('user')) || {
