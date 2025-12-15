@@ -211,14 +211,14 @@ async function main() {
 
   console.log("✓ Created election 3 (upcoming, no votes yet)");
 
-  // Create election 4 (completed)
+  // Create election 4 (completed/ended for demo results)
   const election4 = await prisma.election.create({
     data:  {
       title: "Cultural Secretary 2024",
       description: "Election for cultural secretary position",
-      startDate: new Date("2025-12-19"),
-      endDate: new Date("2025-12-30"),
-      status: "UPCOMING",
+      startDate: new Date("2025-12-10"),
+      endDate: new Date("2025-12-15"),
+      status: "ENDED",
       creatorId: users[3].id, // David is creator
       candidates: {
         create: [
@@ -241,9 +241,12 @@ async function main() {
 
   console.log("✓ Created election 4 (ended/completed)");
 
-  // Create votes for election 4
+  // Create votes for election 4 (ended election with results to display)
   const election4Votes = await prisma.vote.createMany({
     data: [
+      { electionId: election4.id, userId: users[0].id, candidateId: election4.candidates[0].id },
+      { electionId: election4.id, userId: users[1].id, candidateId: election4.candidates[0].id },
+      { electionId: election4.id, userId: users[2].id, candidateId: election4.candidates[0].id },
       { electionId: election4.id, userId: users[3].id, candidateId: election4.candidates[0].id },
       { electionId: election4.id, userId: users[4].id, candidateId: election4.candidates[0].id },
       { electionId: election4.id, userId: users[5].id, candidateId: election4.candidates[0].id },
