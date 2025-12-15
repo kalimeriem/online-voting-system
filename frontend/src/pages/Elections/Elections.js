@@ -68,9 +68,11 @@ const Elections = () => {
           return isAdmin || isEligible;
         });
         setElections(filteredElections);
+        alert('Election created successfully!');
       }
     } catch (err) {
       console.error("Failed to create election:", err);
+      alert(`Error creating election: ${err.message || 'Unknown error'}`);
       // Fallback to mock creation
       createElection(newElection, user.email);
       setElections(getElections());

@@ -92,40 +92,42 @@ const CreateElectionModal = ({ open, onClose, onCreate, userEmail }) => {
           </select>
           
           <div className="candidates-section">
-            <h3>Candidates</h3>
-            <div className="candidate-input">
+            <h3>Candidates (Required)</h3>
+            <div className="candidates-input-group">
               <input 
                 value={candidateName} 
                 onChange={e => setCandidateName(e.target.value)} 
                 placeholder="Candidate Name" 
-                required
               />
-              <input 
+              <textarea 
                 value={candidateDescription} 
                 onChange={e => setCandidateDescription(e.target.value)} 
                 placeholder="Candidate Description (Optional)" 
               />
-              <button type="button" onClick={handleAddCandidate}>Add Candidate</button>
+              <div className="candidates-btn-group">
+                <button type="button" className="candidate-add-btn" onClick={handleAddCandidate}>
+                  + Add Candidate
+                </button>
+              </div>
             </div>
             <div className="candidates-list">
               {candidates.length === 0 ? (
-                <div className="no-candidates">
-                  <span className="candidate-icon">👤</span>
-                  <p>No candidates added yet</p>
-                  <p className="candidate-hint">Add at least one candidate to create an election</p>
+                <div style={{ textAlign: 'center', padding: '12px', color: '#9ca3af', fontSize: '14px' }}>
+                  <p>👤 No candidates added yet</p>
+                  <p style={{ fontSize: '12px', margin: '4px 0 0 0' }}>Add at least one candidate to create an election</p>
                 </div>
               ) : (
-                <ul>
-                  {candidates.map((candidate, idx) => (
-                    <li key={idx}>
-                      <div>
-                        <strong>{candidate.name}</strong>
-                        {candidate.description && <span> - {candidate.description}</span>}
-                      </div>
-                      <button type="button" onClick={() => handleRemoveCandidate(idx)}>×</button>
-                    </li>
-                  ))}
-                </ul>
+                candidates.map((candidate, idx) => (
+                  <div key={idx} className="candidate-item">
+                    <div className="candidate-item-info">
+                      <div className="candidate-item-name">{candidate.name}</div>
+                      {candidate.description && <div className="candidate-item-desc">{candidate.description}</div>}
+                    </div>
+                    <button type="button" className="candidate-remove-btn" onClick={() => handleRemoveCandidate(idx)}>
+                      Remove
+                    </button>
+                  </div>
+                ))
               )}
             </div>
           </div>

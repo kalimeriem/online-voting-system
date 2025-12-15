@@ -194,16 +194,20 @@ export const createElectionAPI = async (electionData) => {
     const res = await api.post("/elections", {
       title: electionData.title,
       description: electionData.description,
-      startDate: electionData.startDate,
-      endDate: electionData.endDate,
-      departmentId: electionData.department ? parseInt(electionData.department) : null,
+      startDate: new Date(electionData.startDate),
+      endDate: new Date(electionData.endDate),
+      departmentId: electionData.department ? parseInt(electionData.department) : undefined,
       candidateNames: electionData.candidates ? electionData.candidates.map(c => c.name) : [],
-      participantIds: electionData.customVoters ? [] : undefined
+      participantIds: electionData.customVoters && electionData.customVoters.length > 0 ? electionData.customVoters.map(email => {
+        // Note: This assumes we have userId for voters, which we don't have from emails
+        // For now, we'll leave it empty and use departmentId for eligibility
+        return null;
+      }).filter(Boolean) : []
     });
     return res.data.data;
   } catch (err) {
     console.error("Failed to create election:", err);
-    return null;
+    throw err;
   }
 };
 
