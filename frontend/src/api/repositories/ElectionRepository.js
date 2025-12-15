@@ -53,11 +53,7 @@ export const createElectionAPI = async (electionData) => {
       endDate: new Date(electionData.endDate),
       departmentId: electionData.department ? parseInt(electionData.department) : undefined,
       candidateNames: electionData.candidates ? electionData.candidates.map(c => c.name) : [],
-      participantIds: electionData.customVoters && electionData.customVoters.length > 0 ? electionData.customVoters.map(email => {
-        // Note: This assumes we have userId for voters, which we don't have from emails
-        // For now, we'll leave it empty and use departmentId for eligibility
-        return null;
-      }).filter(Boolean) : []
+      voterEmails: electionData.customVoters && electionData.customVoters.length > 0 ? electionData.customVoters : []
     });
     return res.data.data;
   } catch (err) {
@@ -101,5 +97,31 @@ export const getUserVote = async (electionId) => {
   } catch (err) {
     console.error("Failed to fetch user vote:", err);
     return null;
+  }
+};
+
+export const addVotersToElection = async (electionId, emails) => {
+  try {
+    const res = await api.post(`/elections/${electionId}/add-voters`, { emails });
+    return res.data.data;
+  } catch (err) {
+    console.error("Failed to add voters:", err);
+    if (err.response?.data?.message) {
+      throw new Error(err.response.data.message);
+    }
+    throw err;
+  }
+};
+
+export const addCandidateToElection = async (electionId, candidateData) => {
+  try {
+    const res = await api.post(`/elections/${electionId}/add-candidate`, candidateData);
+    return res.data.data;
+  } catch (err) {
+    console.error("Failed to add candidate:", err);
+    if (err.response?.data?.message) {
+      throw new Error(err.response.data.message);
+    }
+    throw err;
   }
 };

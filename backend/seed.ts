@@ -94,9 +94,9 @@ async function main() {
     data: {
       title: "Student Council President 2024",
       description: "Annual election for student council president position",
-      startDate: new Date("2025-12-15"),
-      endDate: new Date("2025-12-20"),
-      status: "ACTIVE",
+      startDate: new Date("2025-12-17"),
+      endDate: new Date("2025-12-22"),
+      status: "UPCOMING",
       creatorId: users[0].id, // Alice is creator
       departmentId: department.id,
       candidates: {
@@ -139,9 +139,9 @@ async function main() {
     data: {
       title: "Class Representative 2024",
       description: "Election for class representative",
-      startDate: new Date("2025-12-15"),
-      endDate: new Date("2025-12-22"),
-      status: "ACTIVE",
+      startDate: new Date("2025-12-18"),
+      endDate: new Date("2025-12-25"),
+      status: "UPCOMING",
       creatorId: users[1].id, // Bob is creator
       candidates: {
         create: [
@@ -216,9 +216,9 @@ async function main() {
     data:  {
       title: "Cultural Secretary 2024",
       description: "Election for cultural secretary position",
-      startDate: new Date("2025-12-15"),
-      endDate: new Date("2025-12-25"),
-      status: "ACTIVE",
+      startDate: new Date("2025-12-19"),
+      endDate: new Date("2025-12-30"),
+      status: "UPCOMING",
       creatorId: users[3].id, // David is creator
       candidates: {
         create: [

@@ -50,3 +50,47 @@ export const getParticipants = catchAsync(async (req: AuthRequest, res: Response
   const participants = await electionService.getElectionParticipants(electionId);
   res.json({ success: true, data: participants });
 });
+
+export const addVotersToElection = catchAsync(async (req: AuthRequest, res: Response) => {
+  const electionId = Number(req.params.id);
+  if (Number.isNaN(electionId)) throw new Error("Invalid election id");
+  
+  const { emails } = req.body;
+  if (!emails || !Array.isArray(emails)) {
+    throw new Error("Emails array is required");
+  }
+  
+  const result = await electionService.addVotersToElection(
+    electionId,
+    emails,
+    req.user!.userId
+  );
+  
+  res.json({ 
+    success: true, 
+    data: result,
+    message: `Successfully added ${result.addedCount} voter(s)` 
+  });
+});
+
+export const addCandidateToElection = catchAsync(async (req: AuthRequest, res: Response) => {
+  const electionId = Number(req.params.id);
+  if (Number.isNaN(electionId)) throw new Error("Invalid election id");
+  
+  const { name, description } = req.body;
+  if (!name || name.trim() === "") {
+    throw new Error("Candidate name is required");
+  }
+  
+  const candidate = await electionService.addCandidateToElection(
+    electionId,
+    { name, description },
+    req.user!.userId
+  );
+  
+  res.status(201).json({ 
+    success: true, 
+    data: candidate,
+    message: "Candidate added successfully" 
+  });
+});

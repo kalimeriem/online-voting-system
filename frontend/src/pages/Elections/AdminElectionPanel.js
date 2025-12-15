@@ -4,23 +4,59 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../../components/Header/Header';
 import Sidebar from '../../components/Sidebar/Sidebar';
 import StatsGrid from '../../components/StatsGrid/StatsGrid';
+import AddVotersModal from '../../modals/AddVotersModal';
+import AddCandidatesModal from '../../modals/AddCandidatesModal';
 import '../../components/ElectionCard/ElectionCard.css';
 import './Elections.css';
 import './AdminElectionPanel.css';
 import '../../components/StatsGrid/StatsGrid.css';
+import { addVotersToElection, addCandidateToElection } from '../../api/repositories/ElectionRepository';
 
 
 const AdminElectionPanel = ({ election, user }) => {
-			const [showLiveResults, setShowLiveResults] = useState(false);
-			const [allowVoterAddition, setAllowVoterAddition] = useState(true);
-		
-		const departments = require('../../api/repositories/DepartmentRepository').getDepartments();
-		const department = departments.find(d => d.name === election.department);
-		const departmentMembersLength = department ? department.members.length : 0;
-		const eligibleVotersLength = election.eligibleVoters ? election.eligibleVoters.length : 0;
-		const additionalVoters = eligibleVotersLength - departmentMembersLength;
+	const navigate = useNavigate();
+	const [showLiveResults, setShowLiveResults] = useState(false);
+	const [allowVoterAddition, setAllowVoterAddition] = useState(true);
+	const [showAddVotersModal, setShowAddVotersModal] = useState(false);
+	const [showAddCandidatesModal, setShowAddCandidatesModal] = useState(false);
+	const [voters, setVoters] = useState(election?.eligibleVoters || []);
 	const [activeTab, setActiveTab] = useState('overview');
-	const [candidates, setCandidates] = useState(election.candidates || []);
+	const [candidates, setCandidates] = useState(election?.candidates || []);
+	
+	const departments = require('../../api/repositories/DepartmentRepository').getDepartments();
+	const department = departments.find(d => d.name === election?.department);
+	const departmentMembersLength = department ? department.members.length : 0;
+	const eligibleVotersLength = voters ? voters.length : 0;
+	const additionalVoters = eligibleVotersLength - departmentMembersLength;
+
+	const handleAddVoters = async (emails) => {
+		try {
+			const result = await addVotersToElection(election.id, emails);
+			// Result has: { addedCount, results, participants }
+			// participants is array of { email, name, userId }
+			if (result.participants) {
+				setVoters(result.participants);
+			} else {
+				// Fallback: add new voters to existing list
+				setVoters([...voters, ...emails.map(e => ({ email: e }))]);
+			}
+			setShowAddVotersModal(false);
+			alert(`Successfully added ${result.addedCount || emails.length} voter(s)`);
+		} catch (err) {
+			alert(`Error adding voters: ${err.message}`);
+		}
+	};
+
+	const handleAddCandidate = async (candidateData) => {
+		try {
+			const result = await addCandidateToElection(election.id, candidateData);
+			setCandidates([...candidates, result || candidateData]);
+			setShowAddCandidatesModal(false);
+			alert('Candidate added successfully');
+		} catch (err) {
+			alert(`Error adding candidate: ${err.message}`);
+		}
+	};
 
 	const handleEditCandidate = (idx) => {
 		alert(`Edit candidate: ${candidates[idx].name}`);
@@ -32,7 +68,7 @@ const AdminElectionPanel = ({ election, user }) => {
 			setCandidates(candidates.filter((_, i) => i !== idx));
 		}
 	};
-	const navigate = useNavigate();
+
 	const totalVotes = (election.candidates || []).reduce((sum, c) => sum + (c.votes || 0), 0);
 	const eligibleVoters = election.eligibleVoters ? election.eligibleVoters.length : 0;
 	const durationDays = (() => {
@@ -144,7 +180,11 @@ const AdminElectionPanel = ({ election, user }) => {
 									</div>
 								</div>
 								<div className="voters-tab-actions">
-									<button className="voters-add-btn">
+									<button 
+										className="voters-add-btn"
+										onClick={() => setShowAddVotersModal(true)}
+										disabled={election.status !== 'UPCOMING'}
+									>
 										<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<path d="M16 21v-2a4 4 0 0 0-8 0v2" />
 											<circle cx="12" cy="7" r="4" />
@@ -156,7 +196,7 @@ const AdminElectionPanel = ({ election, user }) => {
 									</button>
 								</div>
 								<div>
-									{(election.eligibleVoters || []).map((voter, idx) => (
+									{(voters || []).map((voter, idx) => (
 										<div key={idx} className="voters-list-item">
 											<span className="voters-list-email">{voter.email || voter}</span>
 											<span className="voters-list-eligible">Eligible</span>
@@ -174,7 +214,11 @@ const AdminElectionPanel = ({ election, user }) => {
 									</div>
 								</div>
 								<div className="candidates-tab-actions">
-									<button className="candidates-add-btn">
+									<button 
+										className="candidates-add-btn"
+										onClick={() => setShowAddCandidatesModal(true)}
+										disabled={election.status !== 'UPCOMING'}
+									>
 										<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 											<path d="M16 21v-2a4 4 0 0 0-8 0v2" />
 											<circle cx="12" cy="7" r="4" />
@@ -194,13 +238,13 @@ const AdminElectionPanel = ({ election, user }) => {
 												<div className="candidates-list-votes">{candidate.votes || 0} votes</div>
 											</div>
 											<div className="candidates-list-actions">
-												<button title="Edit" className="candidates-edit-btn" onClick={() => handleEditCandidate(idx)}>
+												<button title="Edit" className="candidates-edit-btn" onClick={() => handleEditCandidate(idx)} disabled={election.status !== 'UPCOMING'}>
 													<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 														<path d="M12 20h9" />
 														<path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
 													</svg>
 												</button>
-												<button title="Delete" className="candidates-delete-btn" onClick={() => handleDeleteCandidate(idx)}>
+												<button title="Delete" className="candidates-delete-btn" onClick={() => handleDeleteCandidate(idx)} disabled={election.status !== 'UPCOMING'}>
 													<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
 														<polyline points="3 6 5 6 21 6" />
 														<path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m5 6v6m4-6v6M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2" />
@@ -255,6 +299,20 @@ const AdminElectionPanel = ({ election, user }) => {
 					</div>
 				</div>
 			</div>
+
+			{/* Modals */}
+			<AddVotersModal 
+				isOpen={showAddVotersModal}
+				onClose={() => setShowAddVotersModal(false)}
+				onAddVoters={handleAddVoters}
+				electionStatus={election.status}
+			/>
+			<AddCandidatesModal 
+				isOpen={showAddCandidatesModal}
+				onClose={() => setShowAddCandidatesModal(false)}
+				onAddCandidate={handleAddCandidate}
+				electionStatus={election.status}
+			/>
 		</div>
 	);
 };

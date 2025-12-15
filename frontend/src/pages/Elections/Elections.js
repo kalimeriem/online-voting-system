@@ -20,6 +20,17 @@ const Elections = () => {
   const [stats, setStats] = useState({ activeElections: 0, upcoming: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
 
+  // Helper function to compute election status
+  const computeStatus = (election) => {
+    const now = new Date();
+    const startDate = new Date(election.startDate);
+    const endDate = new Date(election.endDate);
+
+    if (now < startDate) return 'UPCOMING';
+    if (now > endDate) return 'ENDED';
+    return 'ACTIVE';
+  };
+
   useEffect(() => {
     const fetchElections = async () => {
       setLoading(true);
@@ -38,10 +49,18 @@ const Elections = () => {
           filteredElections.map(async (election) => {
             try {
               const userVote = await getUserVote(election.id);
-              return { ...election, hasVoted: userVote ? true : false };
+              return { 
+                ...election, 
+                status: computeStatus(election),
+                hasVoted: userVote ? true : false 
+              };
             } catch (err) {
               // If error fetching vote status, assume not voted
-              return { ...election, hasVoted: false };
+              return { 
+                ...election, 
+                status: computeStatus(election),
+                hasVoted: false 
+              };
             }
           })
         );

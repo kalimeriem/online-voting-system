@@ -6,7 +6,7 @@ import ElectionCard from '../../components/ElectionCard/ElectionCard';
 import DepartmentSection from '../../components/DepartmentSection/DepartmentSection';
 import RecentActivity from '../../components/RecentActivity/RecentActivity';
 import { getDepartments } from '../../api/repositories/DepartmentRepository';
-import { getElections, getStats } from '../../api/repositories/ElectionRepository';
+import { getElectionsFromAPI, getStats } from '../../api/repositories/ElectionRepository';
 import './Dashboard.css';
 
 const Dashboard = () => {
@@ -25,17 +25,50 @@ const Dashboard = () => {
   const [departments, setDepartments] = useState([]);
   const [elections, setElections] = useState([]);
 
-  useEffect(() => {
-    const deps = getDepartments();
-    const stats = getStats();
-    const allElections = getElections();
+  // Helper function to compute election status
+  const computeStatus = (election) => {
+    const now = new Date();
+    const startDate = new Date(election.startDate);
+    const endDate = new Date(election.endDate);
 
-    setDepartments(deps);
-    setElections(allElections);
-    setOverview({
-      departments: deps.length,
-      ...stats
-    });
+    if (now < startDate) return 'UPCOMING';
+    if (now > endDate) return 'ENDED';
+    return 'ACTIVE';
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const deps = getDepartments();
+        const stats = getStats();
+        const allElections = await getElectionsFromAPI();
+        
+        // Compute proper statuses
+        const electionsWithStatus = allElections.map(e => ({
+          ...e,
+          status: computeStatus(e)
+        }));
+        
+        setDepartments(deps);
+        setElections(electionsWithStatus);
+        
+        // Calculate stats
+        const activeCount = electionsWithStatus.filter(e => e.status === 'ACTIVE').length;
+        const upcomingCount = electionsWithStatus.filter(e => e.status === 'UPCOMING').length;
+        const completedCount = electionsWithStatus.filter(e => e.status === 'ENDED').length;
+        
+        setOverview({
+          departments: deps.length,
+          activeElections: activeCount,
+          upcoming: upcomingCount,
+          completed: completedCount
+        });
+      } catch (error) {
+        console.error('Failed to load dashboard data:', error);
+      }
+    };
+
+    loadData();
   }, []);
 
   const castVote = (id) => {
