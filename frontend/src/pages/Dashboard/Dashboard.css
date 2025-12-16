@@ -3,51 +3,66 @@
   background: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
+
 .dashboard-container {
   display: flex;
   min-height: calc(100vh - 73px);
   margin-left: 240px;
 }
 
-
-
-
-
+.empty-message {
+  text-align: center;
+  font-size: 1rem;
+  color: #777;
+  margin: 1rem 0;
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
 
 header,
 .header-wrapper {
   margin-left: 240px;
 }
+
 .main {
   flex: 1;
-  margin-top: 73px;
+  margin-top: 20px;
   padding: 2rem;
   background: #f9fafb;
   overflow-y: auto;
 }
-.welcome-section {
-  margin-bottom: 2rem;
+
+/* Welcome section */
+.welcome {
+  margin-bottom: 1.5rem;
   padding: 0 0.5rem;
 }
-.welcome-t{
+
+.welcome-t {
   font-size: 1.75rem;
   font-weight: 600;
   color: #111827;
   margin-bottom: 0.5rem;
 }
+
 .welcome-sub {
   font-size: 0.95rem;
   color: #6b7280;
+  margin-bottom: 1.5rem;
 }
+
 .section {
   margin-bottom: 40px;
 }
+
 .section-head {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
 }
+
 .section-head h2 {
   font-size: 20px;
   color: #1e293b;
@@ -81,11 +96,11 @@ header,
     padding: 20px;
   }
 
-  .welcome-t{
+  .welcome-t {
     font-size: 1.5rem;
   }
 
-  .welcome-sub{
+  .welcome-sub {
     font-size: 0.875rem;
   }
 }

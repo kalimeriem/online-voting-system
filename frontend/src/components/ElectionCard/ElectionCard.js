@@ -1,43 +1,56 @@
-import React from 'react';
-import './ElectionCard.css';
+import React from "react";
+import "./ElectionCard.css";
 
-const ElectionCard = ({ election, onCastVote }) => {
-  const currentUserEmail = 'john@example.com'; // Replace with dynamic user if needed
-  const isEligible = Array.isArray(election.eligibleVoters) 
-  ? election.eligibleVoters.some(v => v.email === currentUserEmail)
-  : false;
+const ElectionCard = ({ election, departmentName, onCastVote }) => {
+  const isEligible = true; // backend already filters eligible elections
   const canVote = isEligible && !election.hasVoted;
+
+  // Sum votes from candidates
+  const totalVotes =
+    election.candidates?.reduce(
+      (sum, c) => sum + (c.votes || 0),
+      0
+    ) || 0;
 
   return (
     <div className="card">
       <div className="header">
         <h3>{election.title}</h3>
-        <span className={`status ${election.status.toLowerCase()}`}>{election.status}</span>
+        <span className={`status ${election.status.toLowerCase()}`}>
+          {election.status}
+        </span>
       </div>
 
       <p className="votedesc">{election.description}</p>
 
       <div className="details">
+        {/* Department name */}
         <div className="detail">
-          <span className="icon">👥</span>
-          <span>Students</span>
+          <span className="icon">🏫</span>
+          <span>{departmentName}</span>
         </div>
+
+        {/* Votes cast */}
         <div className="detail">
           <span className="icon">📊</span>
-          <span>{election.voters} total cast</span>
+          <span>{totalVotes} votes cast</span>
         </div>
+
+        {/* End date */}
         <div className="detail">
           <span className="icon">📅</span>
-          <span>End: {election.endDate}</span>
+          <span>
+            End: {new Date(election.endDate).toLocaleDateString()}
+          </span>
         </div>
       </div>
 
-      <button 
+      <button
         className="vote"
         onClick={() => onCastVote(election.id)}
         disabled={!canVote}
       >
-        {election.hasVoted ? 'Voted' : !isEligible ? 'Not Eligible' : 'Cast Your Vote'}
+        {election.hasVoted ? "Voted" : "Cast Your Vote"}
       </button>
     </div>
   );
