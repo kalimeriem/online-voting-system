@@ -6,6 +6,7 @@ import HomePage from "./pages/HomePage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
+import Departments from "./pages/Departments/Departments";
 import Elections from "./pages/Elections/Elections";
 
 import "./App.css";
@@ -42,6 +43,18 @@ function App() {
             </div>
           }
         />
+        <Route
+  path="/Departments"
+  element={
+    <div style={{ display: "flex" }}>
+      <Sidebar />
+      <div className="content" style={{ flex: 1, padding: "20px" }}>
+        <Departments />
+      </div>
+    </div>
+  }
+/>
+
       </Routes>
     </BrowserRouter>
   );
