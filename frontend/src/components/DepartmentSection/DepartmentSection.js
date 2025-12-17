@@ -1,30 +1,42 @@
-import React from 'react';
-import './DepartmentSection.css';
+import React from "react";
+import "./DepartmentSection.css";
 
 const DepartmentSection = ({ departments, currentUserEmail }) => {
-
   return (
     <div className="team-sec">
-      <div className="team-head">
-        <h2>Departments</h2>
-        <button className="btn">View all →</button>
-      </div>
-
       <div className="team-g">
-        {departments.map((dept, idx) => {
-          const isMember = dept.members.some(m => m.email === currentUserEmail);
+        {departments.map((dept) => {
+          const members = dept.members || [];
+          const isMember = members.some(
+            (m) => m.email === currentUserEmail
+          );
+
           return (
-            <div key={idx} className="card">
+            <div key={dept.id} className="card">
               <div className="title">
                 <h4>{dept.name}</h4>
-                {dept.private && <span className="badge">Private</span>}
-                {isMember && <span className="badge member">You belong</span>}
+
+                {/* Only show private badge if backend sends it */}
+                {dept.private && (
+                  <span className="badge">Private</span>
+                )}
+
+                {isMember && (
+                  <span className="badge member">You belong</span>
+                )}
               </div>
-              <p className="description">{dept.type}</p>
-              <div className="members">
-                <span className="icon">👥</span>
-                <span>{dept.members.length} members</span>
-              </div>
+
+              <p className="description">
+                {dept.description}
+              </p>
+
+              {/* Show members only if backend sends them */}
+              {dept.members && (
+                <div className="members">
+                  <span className="icon">👥</span>
+                  <span>{dept.members.length} members</span>
+                </div>
+              )}
             </div>
           );
         })}
@@ -34,5 +46,3 @@ const DepartmentSection = ({ departments, currentUserEmail }) => {
 };
 
 export default DepartmentSection;
-
-
