@@ -113,7 +113,7 @@ const Dashboard = () => {
                   election={election}
                   departmentName={
                     departmentMap[election.departmentId] ||
-                    "Unknown Department"
+                    "No Department"
                   }
                   onCastVote={castVote}
                 />
