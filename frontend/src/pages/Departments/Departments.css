@@ -218,3 +218,69 @@
     padding: 20px 16px;
   }
 }
+
+.departments-invitations {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.invitation-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px 20px;
+}
+
+.invitation-info {
+  flex: 1;
+}
+
+.invitation-info strong {
+  font-size: 1rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.invitation-info p {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+.invitation-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.invitation-btn {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.invitation-btn.accept {
+  background-color: #2563eb;
+  color: white;
+}
+
+.invitation-btn.accept:hover {
+  background-color: #1d4ed8;
+}
+
+.invitation-btn.decline {
+  background-color: #e5e7eb;
+  color: #111827;
+}
+
+.invitation-btn.decline:hover {
+  background-color: #d1d5db;
+}

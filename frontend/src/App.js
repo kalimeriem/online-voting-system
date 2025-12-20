@@ -7,6 +7,8 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard/Dashboard";
 import Departments from "./pages/Departments/Departments";
+import DepartmentDetailsAdmin from "./pages/Departments/DepartmentDetailsAdmin";
+import DepartmentDetailsMember from "./pages/Departments/DepartmentDetailsMember";
 import Elections from "./pages/Elections/Elections";
 
 import "./App.css";
@@ -44,16 +46,38 @@ function App() {
           }
         />
         <Route
-  path="/Departments"
-  element={
-    <div style={{ display: "flex" }}>
-      <Sidebar />
-      <div className="content" style={{ flex: 1, padding: "20px" }}>
-        <Departments />
-      </div>
-    </div>
-  }
-/>
+          path="/departments"
+          element={
+            <div style={{ display: "flex" }}>
+              <Sidebar />
+              <div className="content" style={{ flex: 1, padding: "20px" }}>
+                <Departments />
+              </div>
+            </div>
+          }
+        />
+        <Route
+          path="/departments/:id"
+          element={
+            <div style={{ display: "flex" }}>
+              <Sidebar />
+              <div className="content" style={{ flex: 1, padding: "20px" }}>
+                <DepartmentDetailsAdmin />
+              </div>
+            </div>
+          }
+        />
+        <Route
+          path="/Departments"
+          element={
+            <div style={{ display: "flex" }}>
+              <Sidebar />
+              <div className="content" style={{ flex: 1, padding: "20px" }}>
+                <Departments />
+              </div>
+            </div>
+          }
+        />
 
       </Routes>
     </BrowserRouter>

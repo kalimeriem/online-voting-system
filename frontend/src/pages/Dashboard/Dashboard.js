@@ -129,12 +129,17 @@ const Dashboard = () => {
           <div className="section">
             <div className="section-head">
               <h2>Departments</h2>
-              <button className="view-all">View all →</button>
+              <button 
+                className="view-all"
+                onClick={() => navigate("/departments")}
+              >
+                View all →
+              </button>
             </div>
 
             {departments.length > 0 ? (
               <DepartmentSection
-                departments={departments}
+                departments={departments.slice(0, 6)}
                 currentUserEmail={user.email}
               />
             ) : (
