@@ -4,7 +4,7 @@ import './Departments.css';
 
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
-import CreateDepartmentModal from '../../components/CreateDepartmentModal/CreateDepartmentModal';
+import CreateDepartmentModal from '../../modals/CreateDepartmentModal';
 import DepartmentCard from '../../components/DepartmentCard/DepartmentCard';
 
 import { departmentRepository } from '../../api/repositories/DepartmentRepositoryCorrected';

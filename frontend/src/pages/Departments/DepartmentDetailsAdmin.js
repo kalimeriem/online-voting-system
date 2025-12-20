@@ -4,7 +4,7 @@ import './DepartmentDetails.css';
 
 import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
-import InviteMemberModal from '../../components/InviteMemberModal/InviteMemberModal';
+import InviteMemberModal from '../../modals/InviteMemberModal';
 
 import { departmentRepository } from '../../api/repositories/DepartmentRepositoryCorrected';
 import { invitationRepository } from '../../api/repositories/InvitationRepository';
