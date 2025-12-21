@@ -1,9 +1,73 @@
 import React, { useState } from 'react';
+import * as XLSX from 'xlsx';
 import './InviteMemberModal.css';
 
 const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
   const [email, setEmail] = useState('');
   const [customVoters, setCustomVoters] = useState([]);
+  const [uploading, setUploading] = useState(false);
+
+  // Basic email regex
+  const extractEmails = (text) => {
+    if (!text) return [];
+    // Match typical emails
+    const emailPattern = /[\w.%+-]+@[\w.-]+\.[A-Za-z]{2,}/g;
+    const emails = text.match(emailPattern);
+    return Array.from(new Set(emails || [])); // unique only
+  };
+
+  // File reader handler for .csv, .txt, .xls, .xlsx
+  const handleFileChange = (event) => {
+    setUploading(true);
+    const file = event.target.files[0];
+    if (!file) {
+      setUploading(false);
+      return;
+    }
+
+    const ext = file.name.split('.').pop().toLowerCase();
+
+    if (ext === 'csv' || ext === 'txt') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const emails = extractEmails(e.target.result);
+        setCustomVoters(emails);
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        setUploading(false);
+      };
+      reader.readAsText(file);
+    } else if (ext === 'xls' || ext === 'xlsx') {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        let emails = [];
+        workbook.SheetNames.forEach((sheetName) => {
+          const worksheet = workbook.Sheets[sheetName];
+          const sheetData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          for (let row of sheetData) {
+            for (let cell of row) {
+              // Extract emails from cell string
+              if (typeof cell === 'string') {
+                emails = emails.concat(extractEmails(cell));
+              }
+            }
+          }
+        });
+        setCustomVoters(Array.from(new Set(emails)));
+        setUploading(false);
+      };
+      reader.onerror = () => {
+        setUploading(false);
+      };
+      reader.readAsArrayBuffer(file);
+    } else {
+      setUploading(false);
+    }
+  };
+
   const [voterTab, setVoterTab] = useState('manual');
   const [voterEmail, setVoterEmail] = useState('');
   const [loading, setLoading] = useState(false);
@@ -15,8 +79,8 @@ const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
     setLoading(true);
 
     try {
-      // If in manual mode, invite all emails from the list
-      if (voterTab === 'manual' && customVoters.length > 0) {
+      // If in manual mode or upload mode, invite all emails from the list
+      if ((voterTab === 'manual' || voterTab === 'upload') && customVoters.length > 0) {
         // Send invitations for each email
         for (const voterEmail of customVoters) {
           await onInvite(voterEmail, departmentId);
@@ -25,8 +89,6 @@ const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
         // Single email input (backward compatibility)
         await onInvite(email.trim(), departmentId);
       }
-      // Note: For spreadsheet upload, you would need to implement file processing
-      
       // Reset form on success
       setEmail('');
       setCustomVoters([]);
@@ -188,8 +250,9 @@ const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
                   <input
                     id="spreadsheet-upload"
                     type="file"
-                    accept=".csv,.xls,.xlsx,.txt"
+                    accept=".csv,.txt,.xls,.xlsx"
                     className="invite-member-upload-input"
+                    onChange={handleFileChange}
                   />
                   <div className="invite-member-upload-placeholder">
                     <span className="invite-member-upload-icon">📄</span>
@@ -202,19 +265,35 @@ const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
                 </p>
               </div>
 
-              {/* Backward compatibility: Single email field for spreadsheet tab */}
-              <div className="invite-member-modal-field">
-                <label htmlFor="single-email" className="invite-member-modal-label">
-                  Or enter a single email:
-                </label>
-                <input
-                  id="single-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="member@gmail.com"
-                  className="invite-member-modal-input"
-                />
+              <div className="invite-member-voter-list">
+                <h4 className="invite-member-voter-list-title">Emails to Invite</h4>
+                {customVoters.length === 0 ? (
+                  <div className="invite-member-no-voters">
+                    <span className="invite-member-voter-icon">👥</span>
+                    <p>No emails detected from file</p>
+                  </div>
+                ) : (
+                  <div className="invite-member-voter-items">
+                    {customVoters.map((email, index) => (
+                      <div key={index} className="invite-member-voter-item">
+                        <span className="invite-member-voter-email">{email}</span>
+                        <button
+                          type="button"
+                          className="invite-member-voter-remove-btn"
+                          onClick={() => handleRemoveVoter(index)}
+                          title="Remove email"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {customVoters.length > 0 && (
+                  <div className="invite-member-voter-count">
+                    {customVoters.length} email{customVoters.length !== 1 ? 's' : ''} to invite
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -235,7 +314,7 @@ const InviteMemberModal = ({ open, onClose, onInvite, departmentId }) => {
             </button>
             <button
               type="submit"
-              disabled={loading || (voterTab === 'manual' && customVoters.length === 0) || (voterTab === 'upload' && !email.trim())}
+              disabled={loading || (voterTab === 'manual' && customVoters.length === 0) || (voterTab === 'upload' && customVoters.length === 0)}
               className="invite-member-modal-create"
             >
               {loading ? 'Sending...' : 'Send Invitations'}

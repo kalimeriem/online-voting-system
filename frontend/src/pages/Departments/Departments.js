@@ -6,6 +6,7 @@ import Sidebar from '../../components/Sidebar/Sidebar';
 import Header from '../../components/Header/Header';
 import CreateDepartmentModal from '../../modals/CreateDepartmentModal';
 import DepartmentCard from '../../components/DepartmentCard/DepartmentCard';
+import ConfirmDialog from '../../modals/ConfirmDialog';
 
 import { departmentRepository } from '../../api/repositories/DepartmentRepositoryCorrected';
 import { userRepository } from '../../api/repositories/UserRepository';
@@ -19,9 +20,10 @@ function Departments() {
   const [error, setError] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState(null);
-
   const [invitations, setInvitations] = useState([]);
   const [loadingInvitations, setLoadingInvitations] = useState(true);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState(null);
 
   // Fetch user + departments
   useEffect(() => {
@@ -29,7 +31,6 @@ function Departments() {
       try {
         const userProfile = await userRepository.getProfile();
         setUser(userProfile);
-
         const data = await departmentRepository.getDepartments();
         const mapped = data.map((d) => ({
           id: d.id,
@@ -38,7 +39,6 @@ function Departments() {
           members: d.members ?? 0,
           role: d.role ?? 'Member',
         }));
-
         setDepts(mapped);
       } catch (err) {
         console.error(err);
@@ -47,25 +47,21 @@ function Departments() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
   // Fetch invitations (received only)
   useEffect(() => {
     if (!user?.email) return;
-
     const fetchInvitations = async () => {
       try {
         const data = await invitationRepository.listInvitations();
-
         const receivedInvitations = data.filter(
           (inv) =>
             inv.email === user.email &&
             inv.type === 'DEPARTMENT' &&
             inv.status === 'PENDING'
         );
-
         setInvitations(receivedInvitations);
       } catch (err) {
         console.error('Failed to load invitations', err);
@@ -73,7 +69,6 @@ function Departments() {
         setLoadingInvitations(false);
       }
     };
-
     fetchInvitations();
   }, [user]);
 
@@ -87,7 +82,6 @@ function Departments() {
         name,
         description
       );
-
       const mapped = {
         id: newDepartment.id,
         name: newDepartment.name,
@@ -95,7 +89,6 @@ function Departments() {
         members: newDepartment.members?.length ?? 0,
         role: 'Manager',
       };
-
       setDepts((prev) => [...prev, mapped]);
     } catch (err) {
       console.error('Error creating department:', err);
@@ -105,24 +98,54 @@ function Departments() {
     }
   };
 
-  const handleRespondInvitation = async (invitationId, accept) => {
+  // Dialog trigger
+  const askRespondInvitation = (invitationId, accept) => {
+    setPendingAction({ invitationId, accept });
+    setConfirmOpen(true);
+  };
+
+  const handleConfirm = async () => {
+    setConfirmOpen(false);
+    if (!pendingAction) return;
     try {
-      await invitationRepository.respondToInvitation(invitationId, accept);
+      await invitationRepository.respondToInvitation(pendingAction.invitationId, pendingAction.accept);
       setInvitations((prev) =>
-        prev.filter((inv) => inv.id !== invitationId)
+        prev.filter((inv) => inv.id !== pendingAction.invitationId)
       );
+      if (pendingAction.accept) {
+        // Refresh departments if invitation was accepted
+        setLoading(true);
+        try {
+          const data = await departmentRepository.getDepartments();
+          const mapped = data.map((d) => ({
+            id: d.id,
+            name: d.name,
+            desc: d.description,
+            members: d.members ?? 0,
+            role: d.role ?? 'Member',
+          }));
+          setDepts(mapped);
+        } catch (err2) {
+          console.error('Failed to refresh departments', err2);
+        } finally {
+          setLoading(false);
+        }
+      }
     } catch (err) {
       console.error('Failed to respond to invitation', err);
     }
+    setPendingAction(null);
+  };
+  const handleCancel = () => {
+    setConfirmOpen(false);
+    setPendingAction(null);
   };
 
   return (
     <div className="departments-layout">
       <Header user={user} />
-
       <div className="departments-container">
         <Sidebar />
-
         <div className="departments-main">
           {/* Header */}
           <div className="departments-top">
@@ -132,7 +155,6 @@ function Departments() {
                 Manage and browse organizational departments
               </p>
             </div>
-
             <button
               className="departments-create-btn"
               onClick={() => setIsModalOpen(true)}
@@ -140,7 +162,6 @@ function Departments() {
               <span>+ Create Department</span>
             </button>
           </div>
-
           {/* Search */}
           <div className="departments-search">
             <svg
@@ -155,7 +176,6 @@ function Departments() {
               <circle cx="11" cy="11" r="8" />
               <line x1="21" y1="21" x2="16.65" y2="16.65" />
             </svg>
-
             <input
               type="text"
               placeholder="Search departments..."
@@ -163,7 +183,6 @@ function Departments() {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-
           {/* Summary */}
           <div className="departments-summary-card">
             <div className="departments-summary-icon">
@@ -175,7 +194,6 @@ function Departments() {
                 />
               </svg>
             </div>
-
             <div>
               <div className="departments-summary-label">
                 Total Departments
@@ -185,14 +203,10 @@ function Departments() {
               </div>
             </div>
           </div>
-
           {/* ✅ Pending Invitations (ONLY if not empty) */}
           {!loadingInvitations && invitations.length > 0 && (
             <>
-              <h2 className="departments-section-title">
-                Pending Invitations
-              </h2>
-
+              <h2 className="departments-section-title">Pending Invitations</h2>
               <div className="departments-invitations">
                 {invitations.map((inv) => (
                   <div key={inv.id} className="invitation-card">
@@ -200,21 +214,16 @@ function Departments() {
                       <strong>{inv.department?.name}</strong>
                       <p>{inv.department?.description}</p>
                     </div>
-
                     <div className="invitation-actions">
                       <button
                         className="invitation-btn accept"
-                        onClick={() =>
-                          handleRespondInvitation(inv.id, true)
-                        }
+                        onClick={() => askRespondInvitation(inv.id, true)}
                       >
                         Accept
                       </button>
                       <button
                         className="invitation-btn decline"
-                        onClick={() =>
-                          handleRespondInvitation(inv.id, false)
-                        }
+                        onClick={() => askRespondInvitation(inv.id, false)}
                       >
                         Decline
                       </button>
@@ -224,13 +233,10 @@ function Departments() {
               </div>
             </>
           )}
-
           {/* Departments */}
           <h2 className="departments-section-title">All Departments</h2>
-
           {loading && <p>Loading departments...</p>}
           {error && <p className="error-text">{error}</p>}
-
           {!loading && !error && (
             <div className="departments-grid">
               {filtered.map((d) => (
@@ -246,11 +252,17 @@ function Departments() {
           )}
         </div>
       </div>
-
       <CreateDepartmentModal
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onCreate={handleCreateDepartment}
+      />
+      <ConfirmDialog
+        open={confirmOpen}
+        title={pendingAction?.accept ? 'Accept Invitation' : 'Decline Invitation'}
+        message={`Are you sure you want to ${pendingAction?.accept ? 'accept' : 'decline'} this invitation?`}
+        onConfirm={handleConfirm}
+        onCancel={handleCancel}
       />
     </div>
   );

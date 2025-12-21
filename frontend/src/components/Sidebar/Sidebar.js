@@ -51,7 +51,9 @@ export default function Sidebar() {
           <Link 
             key={item.name}
             to={item.path}
-            className={`sidebar-item ${location.pathname === item.path ? 'active' : ''}`}
+            className={`sidebar-item ${(item.name === 'Departments' 
+              ? location.pathname.toLowerCase().startsWith('/departments')
+              : location.pathname === item.path) ? 'active' : ''}`}
           >
             <span className="sidebar-icon">{item.icon}</span>
             <span className="sidebar-text">{item.name}</span>
