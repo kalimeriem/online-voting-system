@@ -1,14 +1,12 @@
-import jwt, { SignOptions } from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import { config } from '../config/env.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
-
-export const signToken = (
-  payload: Record<string, any>,
-  expiresIn: string = "1d"
-): string => {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn } as SignOptions);
+export const generateToken = (payload: { adminId: number; email: string }): string => {
+  return jwt.sign(payload, config.jwtSecret, { 
+    expiresIn: config.jwtExpiresIn 
+  } as jwt.SignOptions);
 };
 
-export const verifyToken = (token: string) => {
-  return jwt.verify(token, JWT_SECRET) as any;
+export const verifyToken = (token: string): any => {
+  return jwt.verify(token, config.jwtSecret);
 };

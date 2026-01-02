@@ -1,10 +1,10 @@
-import { Router } from "express";
-import * as voteController from "./vote.controller";
-import { protect } from "../../middlewares/auth.middleware";
+import { Router } from 'express';
+import * as voteController from './vote.controller.js';
 
 const router = Router();
 
-router.post("/", protect, voteController.castVote);
-router.get("/:electionId/results", protect, voteController.getResults);
+router.post('/request-otp', voteController.requestOTP);
+router.post('/cast', voteController.castVote);
+router.get('/results/:pollId', voteController.getResults);
 
 export default router;

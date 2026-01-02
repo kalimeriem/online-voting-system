@@ -1,45 +1,35 @@
-import api from "../httpClient";
+import apiClient from '../client';
 
 export const authRepository = {
-  async register(name, email, password) {
-    try {
-      const res = await api.post("/auth/register", { name, email, password });
-
-      return {
-        user: res.data.data.user,
-        token: res.data.data.token
-      };
-
-    } catch (err) {
-      throw formatBackendError(err);
-    }
+  register: async (email, password, name) => {
+    const response = await apiClient.post('/auth/register', {
+      email,
+      password,
+      name,
+    });
+    return response.data;
   },
 
-  async login(email, password) {
-    try {
-      const res = await api.post("/auth/login", { email, password });
+  login: async (email, password) => {
+    const response = await apiClient.post('/auth/login', {
+      email,
+      password,
+    });
+    return response.data;
+  },
 
-      return {
-        user: res.data.data.user,
-        token: res.data.data.token
-      };
+  verifyEmail: async (email, code) => {
+    const response = await apiClient.post('/auth/verify-email', {
+      email,
+      code,
+    });
+    return response.data;
+  },
 
-    } catch (err) {
-      throw formatBackendError(err);
-    }
+  resendCode: async (email) => {
+    const response = await apiClient.post('/auth/resend-code', {
+      email,
+    });
+    return response.data;
   },
 };
-
-function formatBackendError(err) {
-  if (err.response?.status === 400 && err.response.data?.errors) {
-    return {
-      fieldErrors: err.response.data.errors,
-    };
-  }
-
-  if (err.response?.status === 401) {
-    return new Error("Invalid email or password");
-  }
-
-  return new Error("Server error, please try again later.");
-}

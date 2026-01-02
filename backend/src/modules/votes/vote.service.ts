@@ -1,59 +1,206 @@
-import prisma from "../../db/prisma";
-import type { Vote, Election, Candidate } from "@prisma/client";
+import prisma from '../../db/prisma.js';
+import { generateOTP, saveOTP, verifyOTP } from '../../utils/otp.js';
+import { sendOTPEmail } from '../../utils/email.js';
+import { verifyRecaptcha } from '../../utils/recaptcha.js';  // 🆕 Import
 
-interface CastVoteInput {
-  electionId: number;
-  candidateId: number;
-  userId: number;
-}
-
-export const castVote = async ({ electionId, candidateId, userId }: CastVoteInput): Promise<Vote> => {
-  // Ensure election exists and is active
-  const election = await prisma.election.findUnique({ where: { id: electionId } });
-  if (!election) throw new Error("Election not found");
-
-  const now = new Date();
-  if (now < election.startDate || now > election.endDate) {
-    throw new Error("Election is not active");
+export const requestOTP = async (email: string, pollId: number, ip: string) => {  // 🆕 Add ip parameter
+  // Check if poll exists and is active
+  const poll = await prisma.poll.findUnique({ where: { id: pollId } });
+  
+  if (!poll) {
+    throw new Error('Poll not found');
   }
 
-  // Ensure user is a participant or the creator
-  const isParticipant = await prisma.electionParticipant.findUnique({
-    where: { electionId_userId: { electionId, userId } }
-  });
-  if (!isParticipant && election.creatorId !== userId) {
-    throw new Error("User is not a participant in this election");
+  if (new Date() > poll.endDate) {
+    throw new Error('This poll has ended');
   }
 
-  // Create vote in a transaction to handle concurrency
-  return await prisma.$transaction(async (tx) => {
-    const existingVote = await tx.vote.findUnique({ where: { electionId_userId: { electionId, userId } } });
-    if (existingVote) throw new Error("User has already voted in this election.");
+  // If poll is private, check if email is allowed
+  if (!poll.isPublic) {
+    const isAllowed = await prisma.allowedEmail.findFirst({
+      where: {
+        pollId,
+        OR: [
+          { email },
+          { domain: email.split('@')[1] }
+        ]
+      }
+    });
 
-    const vote = await tx.vote.create({ data: { electionId, candidateId, userId } });
-    return vote;
+    if (!isAllowed) {
+      throw new Error('You are not authorized to vote in this poll');
+    }
+  }
+
+  // 🆕 Check if IP already voted
+  const ipVote = await prisma.vote.findFirst({
+    where: { pollId, voterIP: ip }
   });
+
+  if (ipVote) {
+    throw new Error('This IP address has already voted in this poll');
+  }
+
+  // Check if already voted
+  const existingVote = await prisma.vote.findUnique({
+    where: { pollId_voterEmail: { pollId, voterEmail: email } }
+  });
+
+  if (existingVote) {
+    throw new Error('You have already voted in this poll');
+  }
+
+  // Generate and send OTP
+  const otp = generateOTP();
+  await saveOTP(email, pollId, otp);
+  await sendOTPEmail(email, otp);
+
+  return { message: 'OTP sent to your email' };
 };
 
-// Get election results
-export const getElectionResults = async (electionId: number): Promise<{ candidate: Candidate; votes: number; percentage: number }[]> => {
-  const totalVotesRes = await prisma.vote.aggregate({ where: { electionId }, _count: { _all: true } });
-  const totalVotes = totalVotesRes._count._all || 0;
+export const castVote = async (
+  pollId: number,
+  optionId: number,
+  voterEmail: string | null,
+  otp: string | null,
+  wantsResult: boolean,
+  ip: string,  // 🆕 NEW parameter
+  recaptchaToken: string  // 🆕 NEW parameter
+) => {
+  // 🆕 Verify reCAPTCHA first
+  const isHuman = await verifyRecaptcha(recaptchaToken, ip);
+  
+  if (!isHuman) {
+    throw new Error('reCAPTCHA verification failed. Please try again.');
+  }
 
-  const votes = await prisma.vote.groupBy({
-    by: ["candidateId"],
-    where: { electionId },
-    _count: { candidateId: true }
+  // Get poll
+  const poll = await prisma.poll.findUnique({
+    where: { id: pollId },
+    include: { options: true }
   });
 
-  const results = await Promise.all(
-    votes.map(async (v) => {
-      const candidate = await prisma.candidate.findUnique({ where: { id: v.candidateId } });
-      const count = v._count.candidateId;
-      const percentage = totalVotes > 0 ? (count / totalVotes) * 100 : 0;
-      return { candidate: candidate!, votes: count, percentage };
-    })
-  );
+  if (!poll) {
+    throw new Error('Poll not found');
+  }
 
-  return results;
+  if (new Date() > poll.endDate) {
+    throw new Error('This poll has ended');
+  }
+
+  // Verify option belongs to this poll
+  const option = poll.options.find(o => o.id === optionId);
+  if (!option) {
+    throw new Error('Invalid option for this poll');
+  }
+
+  // For private polls, verify OTP
+  if (!poll.isPublic) {
+    if (!voterEmail || !otp) {
+      throw new Error('Email and OTP are required for private polls');
+    }
+
+    const isValid = await verifyOTP(voterEmail, pollId, otp);
+    if (!isValid) {
+      throw new Error('Invalid or expired OTP');
+    }
+  }
+
+  // 🆕 Check if IP already voted
+  const ipVote = await prisma.vote.findFirst({
+    where: { pollId, voterIP: ip }
+  });
+
+  if (ipVote) {
+    throw new Error('This IP address has already voted in this poll');
+  }
+
+  // Check if already voted
+  if (voterEmail) {
+    const existingVote = await prisma.vote.findUnique({
+      where: { pollId_voterEmail: { pollId, voterEmail } }
+    });
+
+    if (existingVote) {
+      throw new Error('You have already voted in this poll');
+    }
+  }
+
+  // Cast vote with IP  🆕
+  const vote = await prisma.vote.create({
+    data: {
+      pollId,
+      optionId,
+      voterEmail,
+      voterIP: ip,  // 🆕 Store IP
+      wantsResult
+    }
+  });
+
+  return {
+    message: 'Vote cast successfully!',
+    vote: {
+      id: vote.id,
+      pollId: vote.pollId,
+      wantsResult: vote.wantsResult
+    }
+  };
+};
+
+export const getPublicResults = async (pollId: number) => {
+  const poll = await prisma.poll.findUnique({
+    where: { id: pollId },
+    include: { options: true }
+  });
+
+  if (!poll) {
+    throw new Error('Poll not found');
+  }
+
+  // Get vote counts
+  const votes = await prisma.vote.groupBy({
+    by: ['optionId'],
+    where: { pollId },
+    _count: { id: true }
+  });
+
+  const totalVotes = votes.reduce((sum, v) => sum + v._count.id, 0);
+
+  const results = poll.options.map((option) => {
+    const voteCount = votes.find((v) => v.optionId === option.id)?._count.id || 0;
+    const percentage = totalVotes > 0 ? (voteCount / totalVotes) * 100 : 0;
+
+    return {
+      optionId: option.id,
+      text: option.text,
+      votes: voteCount,
+      percentage: parseFloat(percentage.toFixed(2))
+    };
+  });
+
+  // 🆕 Fixed winner logic (handle ties)
+  const maxVotes = Math.max(...results.map(r => r.votes));
+  const winners = results.filter(r => r.votes === maxVotes);
+
+  const winner = winners.length > 1 
+    ? {
+        optionId: null,
+        text: `Tie: ${winners.map(w => w.text).join(', ')}`,
+        votes: maxVotes,
+        percentage: winners[0].percentage,
+        isTie: true
+      }
+    : { ...winners[0], isTie: false };
+
+  return {
+    poll: {
+      title: poll.title,
+      description: poll.description,
+      endDate: poll.endDate,
+      hasEnded: new Date() > poll.endDate
+    },
+    totalVotes,
+    results,
+    winner
+  };
 };

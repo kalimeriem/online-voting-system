@@ -1,47 +1,56 @@
-import React from "react";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Sidebar from "./components/Sidebar/Sidebar";
-
-import HomePage from "./pages/HomePage";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard/Dashboard";
-import Elections from "./pages/Elections/Elections";
-
-import "./App.css";
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './pages/Login';
+import Register from './pages/Register';
+import VerifyEmail from './pages/VerifyEmail';
+import Dashboard from './pages/Dashboard';
+import CreatePoll from './pages/CreatePoll';
+import VotePage from './pages/VotePage';
+import ResultsPage from './pages/ResultsPage';
+import PollStats from './pages/PollStats';
 
 function App() {
+  const isAuthenticated = () => {
+    return localStorage.getItem('token') !== null;
+  };
+
+  const ProtectedRoute = ({ children }) => {
+    return isAuthenticated() ? children : <Navigate to="/login" />;
+  };
+
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes without Sidebar */}
-        <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-
-        {/* Protected routes with Sidebar */}
-        <Route
-          path="/dashboard"
+        <Route path="/verify-email" element={<VerifyEmail />} />
+        <Route 
+          path="/dashboard" 
           element={
-            <div style={{ display: "flex" }}>
-              <Sidebar />
-              <div className="content" style={{ flex: 1, padding: "20px" }}>
-                <Dashboard />
-              </div>
-            </div>
-          }
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          } 
         />
-        <Route
-          path="/elections"
+        <Route 
+          path="/create-poll" 
           element={
-            <div style={{ display: "flex" }}>
-              <Sidebar />
-              <div className="content" style={{ flex: 1, padding: "20px" }}>
-                <Elections />
-              </div>
-            </div>
-          }
+            <ProtectedRoute>
+              <CreatePoll />
+            </ProtectedRoute>
+          } 
         />
+        <Route 
+          path="/poll/:pollId/stats" 
+          element={
+            <ProtectedRoute>
+              <PollStats />
+            </ProtectedRoute>
+          } 
+        />
+        <Route path="/vote/:uniqueUrl" element={<VotePage />} />
+        <Route path="/results/:pollId" element={<ResultsPage />} />
+        <Route path="/" element={<Navigate to="/dashboard" />} />
       </Routes>
     </BrowserRouter>
   );

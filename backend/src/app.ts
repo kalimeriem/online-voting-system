@@ -1,33 +1,32 @@
-import express from "express";
-import cors from "cors";
-import dotenv from "dotenv";
-import authRoutes from "./modules/auth/auth.route";
-import userRoutes from "./modules/users/user.route";
-import departmentRoutes from "./modules/departments/department.route"
-import invitationRoutes from "./modules/departments/invitation.route";
-import electionRoutes from "./modules/elections/election.route";
-import voteRoutes from "./modules/votes/vote.route";
-import errorHandler from "./middlewares/error.middleware";
-
+import express from 'express';
+import cors from 'cors';
+import authRoutes from './modules/auth/auth.route.js';
+import pollRoutes from './modules/polls/poll.route.js';
+import voteRoutes from './modules/votes/vote.route.js';
+import errorHandler from './middlewares/error.middleware.js';
+import { config } from './config/env.js';
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = config.allowedOrigins || ['http://localhost:3000'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
+
 app.use(express.json());
 
-
-app.get("/", (req, res) => {
-  res.json({ message: "Voting System API is running" });
+// Routes
+app.get('/', (req, res) => {
+  res.json({ message: 'Online Voting System API' });
 });
 
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
-app.use("/departments", departmentRoutes);
-app.use("/invitations", invitationRoutes);
-app.use("/elections", electionRoutes);
-app.use("/votes", voteRoutes);
+app.use('/api/auth', authRoutes);     
+app.use('/api/polls', pollRoutes);    
+app.use('/api/votes', voteRoutes);    
 
-// Centralized error handler (should be last middleware)
+// Error handler (must be last)
 app.use(errorHandler);
 
 export default app;

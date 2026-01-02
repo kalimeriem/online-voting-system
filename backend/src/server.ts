@@ -1,13 +1,11 @@
-import app from "./app";
-import dotenv from "dotenv";
-import { startElectionStatusScheduler } from "./utils/electionScheduler";
+import app from './app.js';
+import { config } from './config/env.js';
 
-dotenv.config();
+import './utils/pollResultsWorker.js';
 
-const PORT = process.env.PORT || 5000;
+const PORT = config.port;
 
-startElectionStatusScheduler();
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`🚀 Server running on port ${PORT}`);
 });
